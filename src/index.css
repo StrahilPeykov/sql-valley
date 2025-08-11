@@ -1,0 +1,249 @@
+:root {
+  /* TU/e Brand Colors */
+  --tue-red: #C72125;
+  --tue-red-dark: #A01A1D;
+  --tue-red-light: #E63946;
+  --tue-blue: #012A4A;
+  --tue-blue-dark: #011627;
+  --tue-blue-light: #013A63;
+  --tue-gray: #6C757D;
+  --tue-gray-light: #F8F9FA;
+  --tue-gray-dark: #343A40;
+  
+  /* Color Palette - TU/e Themed */
+  --color-primary: var(--tue-red);
+  --color-primary-dark: var(--tue-red-dark);
+  --color-secondary: var(--tue-blue);
+  --color-success: #2A9D8F;
+  --color-warning: #E9C46A;
+  --color-error: #E76F51;
+  --color-info: #457B9D;
+  
+  /* Background Colors */
+  --bg-dark: var(--tue-blue-dark);
+  --bg-card: rgba(255, 255, 255, 0.08);
+  --bg-card-hover: rgba(255, 255, 255, 0.12);
+  
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #E9ECEF;
+  --text-muted: #ADB5BD;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--tue-blue-dark) 0%, var(--tue-blue) 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* TU/e Pattern Overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 35px,
+      rgba(199, 33, 37, 0.03) 35px,
+      rgba(199, 33, 37, 0.03) 70px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+#root {
+  position: relative;
+  z-index: 2;
+}
+
+code, pre {
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+}
+
+/* Utility Classes */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background: rgba(1, 26, 39, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tue-red-glow {
+  box-shadow: 0 0 30px rgba(199, 33, 37, 0.3);
+}
+
+.tue-red-text-glow {
+  text-shadow: 0 0 20px rgba(199, 33, 37, 0.5);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Scrollbar Styles - TU/e themed */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--tue-red);
+  border-radius: var(--radius-sm);
+  opacity: 0.8;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tue-red-light);
+}
+
+/* Focus Styles - TU/e themed */
+:focus-visible {
+  outline: 2px solid var(--tue-red);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--tue-red);
+  outline-offset: 2px;
+}
+
+/* TU/e Button Styles */
+.btn-tue-primary {
+  background: var(--tue-red);
+  color: white;
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.btn-tue-primary:hover {
+  background: var(--tue-red-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(199, 33, 37, 0.3);
+}
+
+.btn-tue-secondary {
+  background: transparent;
+  color: var(--tue-red);
+  border: 2px solid var(--tue-red);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.btn-tue-secondary:hover {
+  background: var(--tue-red);
+  color: white;
+  transform: translateY(-2px);
+}
