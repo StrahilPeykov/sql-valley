@@ -7,6 +7,7 @@ export const exercises = [
     points: 10,
     prerequisites: [],
     description: "Let's start with a simple SELECT query. Retrieve all employees from the Engineering department.",
+    shortDescription: "Learn the basics of SELECT statements",
     theory: `The SELECT statement is used to query data from a database. The WHERE clause filters records based on specified conditions.
     
     Syntax: SELECT column1, column2 FROM table WHERE condition;
@@ -54,6 +55,7 @@ export const exercises = [
     points: 15,
     prerequisites: [1],
     description: "Find all employees with a salary greater than 80000. Order them by salary descending.",
+    shortDescription: "Master filtering with WHERE clauses",
     theory: `You can use comparison operators in WHERE clauses:
     - Greater than: >
     - Less than: <
@@ -119,6 +121,7 @@ export const exercises = [
     points: 20,
     prerequisites: [1],
     description: "Calculate the average salary for each department. Order the results by average salary descending.",
+    shortDescription: "Calculate averages, sums, and counts",
     theory: `Aggregate functions perform calculations on sets of rows:
     - COUNT(): Count rows
     - SUM(): Sum values
@@ -188,6 +191,7 @@ export const exercises = [
     points: 30,
     prerequisites: [2, 3],
     description: "Find all active projects along with their department names and locations. Include the project budget in the results.",
+    shortDescription: "Combine data from multiple tables",
     theory: `JOIN combines rows from two or more tables based on related columns.
     
     Types of JOINs:
@@ -240,6 +244,7 @@ export const exercises = [
     points: 35,
     prerequisites: [4],
     description: "Find all employees who earn more than the average salary of their department.",
+    shortDescription: "Write queries within queries",
     theory: `A subquery is a query nested inside another query. It can be used in:
     - WHERE clause
     - FROM clause  
@@ -287,6 +292,7 @@ WHERE salary > (
     points: 40,
     prerequisites: [3, 4],
     description: "Find departments where the total salary budget exceeds 150000. Show department name, employee count, and total salary.",
+    shortDescription: "Master complex data analysis",
     theory: `HAVING clause filters groups after GROUP BY (WHERE filters rows before grouping).
     
     You can combine multiple aggregate functions in one query.`,

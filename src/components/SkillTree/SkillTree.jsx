@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Brain, Lock, Star, CheckCircle, Circle } from 'lucide-react';
+import { Brain, Database, Filter, BarChart3, Link, Search, Award } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { exercises } from '../../data/exercises';
 import styles from './SkillTree.module.css';
@@ -9,191 +9,131 @@ const SkillTree = () => {
     completedExercises, 
     currentExerciseId, 
     selectExercise, 
-    isExerciseUnlocked 
+    isExerciseUnlocked,
+    totalPoints
   } = useApp();
   
-  // Define skill tree nodes with positions
-  const skillNodes = useMemo(() => [
-    { 
-      id: 1, 
-      x: 50, 
-      y: 85, 
-      category: 'Fundamentals'
+  // Organize skills by category with vertical progression
+  const skillCategories = useMemo(() => [
+    {
+      title: "Fundamentals",
+      color: "#4A90E2",
+      skills: [
+        { id: 1, icon: Database, title: "SELECT Basics" },
+        { id: 2, icon: Filter, title: "Filtering" }
+      ]
     },
-    { 
-      id: 2, 
-      x: 30, 
-      y: 65, 
-      category: 'Fundamentals'
+    {
+      title: "Data Analysis", 
+      color: "#F5A623",
+      skills: [
+        { id: 3, icon: BarChart3, title: "Aggregation" }
+      ]
     },
-    { 
-      id: 3, 
-      x: 70, 
-      y: 65, 
-      category: 'Aggregation'
-    },
-    { 
-      id: 4, 
-      x: 50, 
-      y: 45, 
-      category: 'Joins'
-    },
-    { 
-      id: 5, 
-      x: 30, 
-      y: 25, 
-      category: 'Advanced'
-    },
-    { 
-      id: 6, 
-      x: 70, 
-      y: 25, 
-      category: 'Advanced'
+    {
+      title: "Advanced Queries",
+      color: "#BD10E0", 
+      skills: [
+        { id: 4, icon: Link, title: "JOINs" },
+        { id: 5, icon: Search, title: "Subqueries" },
+        { id: 6, icon: Award, title: "Complex Analysis" }
+      ]
     }
   ], []);
   
-  // Combine nodes with exercise data
-  const nodes = useMemo(() => {
-    return skillNodes.map(node => {
-      const exercise = exercises.find(ex => ex.id === node.id);
-      const isCompleted = completedExercises.includes(node.id);
-      const isUnlocked = isExerciseUnlocked(node.id);
-      const isCurrent = currentExerciseId === node.id;
-      
-      return {
-        ...node,
-        ...exercise,
-        isCompleted,
-        isUnlocked,
-        isCurrent
-      };
-    });
-  }, [skillNodes, completedExercises, currentExerciseId, isExerciseUnlocked]);
-  
-  // Define connections between nodes
-  const connections = [
-    { from: 1, to: 2 },
-    { from: 1, to: 3 },
-    { from: 2, to: 4 },
-    { from: 3, to: 4 },
-    { from: 4, to: 5 },
-    { from: 4, to: 6 }
-  ];
-  
-  const getNodePosition = (nodeId) => {
-    const node = nodes.find(n => n.id === nodeId);
-    return node ? { x: node.x, y: node.y } : { x: 0, y: 0 };
+  // Get exercise data for each skill
+  const getSkillData = (skillId) => {
+    const exercise = exercises.find(ex => ex.id === skillId);
+    const isCompleted = completedExercises.includes(skillId);
+    const isUnlocked = isExerciseUnlocked(skillId);
+    const isCurrent = currentExerciseId === skillId;
+    
+    return {
+      ...exercise,
+      isCompleted,
+      isUnlocked,
+      isCurrent
+    };
   };
   
-  const handleNodeClick = (node) => {
-    if (node.isUnlocked) {
-      selectExercise(node.id);
+  const handleSkillClick = (skillId) => {
+    const skillData = getSkillData(skillId);
+    if (skillData.isUnlocked) {
+      selectExercise(skillId);
     }
   };
   
-  const getNodeColor = (node) => {
-    if (node.isCompleted) return styles.completed;
-    if (node.isCurrent) return styles.current;
-    if (node.isUnlocked) return styles.unlocked;
-    return styles.locked;
+  const getSkillStatus = (skill) => {
+    if (skill.isCompleted) return 'completed';
+    if (skill.isCurrent) return 'current';
+    if (skill.isUnlocked) return 'available';
+    return 'locked';
   };
   
-  const getNodeIcon = (node) => {
-    if (node.isCompleted) return <Star className={styles.nodeIcon} />;
-    if (!node.isUnlocked) return <Lock className={styles.nodeIcon} />;
-    if (node.isCurrent) return <Circle className={styles.nodeIcon} />;
-    return <CheckCircle className={styles.nodeIcon} />;
-  };
+  const completedCount = completedExercises.length;
+  const totalCount = exercises.length;
   
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Brain className={styles.headerIcon} />
-        <h2 className={styles.title}>SQL Skill Tree</h2>
+        <div className={styles.titleSection}>
+          <Brain className={styles.headerIcon} />
+          <div>
+            <h2 className={styles.title}>SQL Skills</h2>
+            <p className={styles.subtitle}>
+              {completedCount}/{totalCount} completed • {totalPoints} points
+            </p>
+          </div>
+        </div>
       </div>
       
-      <div className={styles.treeContainer}>
-        <svg 
-          viewBox="0 0 100 100" 
-          className={styles.svg}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Render connections */}
-          <g className={styles.connections}>
-            {connections.map((conn, idx) => {
-              const from = getNodePosition(conn.from);
-              const to = getNodePosition(conn.to);
-              const fromNode = nodes.find(n => n.id === conn.from);
-              const toNode = nodes.find(n => n.id === conn.to);
-              const isActive = fromNode?.isCompleted && toNode?.isUnlocked;
-              
-              return (
-                <line
-                  key={idx}
-                  x1={from.x}
-                  y1={from.y}
-                  x2={to.x}
-                  y2={to.y}
-                  className={`${styles.connection} ${isActive ? styles.connectionActive : ''}`}
-                  strokeDasharray={isActive ? "0" : "2,2"}
-                />
-              );
-            })}
-          </g>
-          
-          {/* Render nodes */}
-          <g className={styles.nodes}>
-            {nodes.map(node => (
-              <g
-                key={node.id}
-                transform={`translate(${node.x}, ${node.y})`}
-                onClick={() => handleNodeClick(node)}
-                className={styles.nodeGroup}
-                style={{ cursor: node.isUnlocked ? 'pointer' : 'not-allowed' }}
-              >
-                {/* Node pulse effect for current */}
-                {node.isCurrent && (
-                  <circle
-                    r="12"
-                    className={styles.pulse}
-                  />
-                )}
+      <div className={styles.skillGrid}>
+        {skillCategories.map((category, categoryIndex) => (
+          <div key={category.title} className={styles.category}>
+            <div 
+              className={styles.categoryHeader}
+              style={{ '--category-color': category.color }}
+            >
+              <h3>{category.title}</h3>
+            </div>
+            
+            <div className={styles.skillList}>
+              {category.skills.map((skill, skillIndex) => {
+                const skillData = getSkillData(skill.id);
+                const IconComponent = skill.icon;
                 
-                {/* Node circle */}
-                <circle
-                  r="8"
-                  className={`${styles.node} ${getNodeColor(node)}`}
-                />
-                
-                {/* Node icon */}
-                <g transform="translate(-6, -6)">
-                  {getNodeIcon(node)}
-                </g>
-                
-                {/* Node label */}
-                <text
-                  y="-12"
-                  className={styles.nodeLabel}
-                  textAnchor="middle"
-                >
-                  {node.title}
-                </text>
-                
-                {/* Difficulty badge */}
-                <text
-                  y="18"
-                  className={styles.nodeDifficulty}
-                  textAnchor="middle"
-                >
-                  {node.points} pts
-                </text>
-              </g>
-            ))}
-          </g>
-        </svg>
+                return (
+                  <div
+                    key={skill.id}
+                    className={`${styles.skillCard} ${styles[getSkillStatus(skillData)]}`}
+                    onClick={() => handleSkillClick(skill.id)}
+                  >
+                    <div className={styles.skillIcon}>
+                      <IconComponent size={24} />
+                    </div>
+                    
+                    <div className={styles.skillInfo}>
+                      <h4>{skill.title}</h4>
+                      <p className={styles.skillMeta}>
+                        {skillData.difficulty} • {skillData.points} pts
+                      </p>
+                      
+                      {skillData.isCurrent && (
+                        <div className={styles.currentBadge}>Current</div>
+                      )}
+                      
+                      {skillData.isCompleted && (
+                        <div className={styles.completedBadge}>✓</div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
       
-      {/* Legend */}
       <div className={styles.legend}>
         <div className={styles.legendItem}>
           <div className={`${styles.legendDot} ${styles.completed}`} />
@@ -204,7 +144,7 @@ const SkillTree = () => {
           <span>Current</span>
         </div>
         <div className={styles.legendItem}>
-          <div className={`${styles.legendDot} ${styles.unlocked}`} />
+          <div className={`${styles.legendDot} ${styles.available}`} />
           <span>Available</span>
         </div>
         <div className={styles.legendItem}>
