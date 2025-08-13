@@ -108,24 +108,46 @@ export const AppProvider = ({ children }) => {
   // Get current exercise
   const currentExercise = exercises.find(ex => ex.id === currentExerciseId) || exercises[0];
   
-  // Initialize exercise code when exercise changes
+  // Initialize exercise code when exercise changes - SMART VERSION
   useEffect(() => {
     if (currentExercise) {
-      // Only set initial code if userCode is empty or this is a new exercise
-      if (!userCode || userCode === '' || userCode.trim() === '') {
+      // Check if we have saved code for this exercise
+      const savedCode = savedQueries[currentExerciseId];
+      if (savedCode) {
+        // Restore saved code
+        setUserCode(savedCode);
+      } else {
+        // Use initial code for new exercises
         setUserCode(currentExercise.initialCode || '-- Write your SQL query here\n\n');
       }
       setFeedback(null);
       setQueryResult(null);
     }
-  }, [currentExerciseId]);
+  }, [currentExerciseId, savedQueries]);
   
-  // Initialize on first load
+  // Save user code whenever it changes (with debouncing)
   useEffect(() => {
-    if (currentExercise && (!userCode || userCode.trim() === '')) {
-      setUserCode(currentExercise.initialCode || '-- Write your SQL query here\n\n');
+    if (userCode && currentExerciseId) {
+      const timeoutId = setTimeout(() => {
+        setSavedQueries(prev => ({
+          ...prev,
+          [currentExerciseId]: userCode
+        }));
+      }, 1000); // Save after 1 second of no typing
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [currentExercise]);
+  }, [userCode, currentExerciseId]);
+  
+  // Initialize on first load if no code exists
+  useEffect(() => {
+    if (currentExercise && !userCode) {
+      const savedCode = savedQueries[currentExerciseId];
+      if (!savedCode) {
+        setUserCode(currentExercise.initialCode || '-- Write your SQL query here\n\n');
+      }
+    }
+  }, []);
   
   // Select exercise
   const selectExercise = useCallback((exerciseId) => {
@@ -201,10 +223,16 @@ export const AppProvider = ({ children }) => {
   const resetCurrentExercise = useCallback(() => {
     if (currentExercise && currentExercise.initialCode) {
       setUserCode(currentExercise.initialCode);
+      // Clear saved code for this exercise so it starts fresh next time
+      setSavedQueries(prev => {
+        const updated = { ...prev };
+        delete updated[currentExerciseId];
+        return updated;
+      });
     }
     setFeedback(null);
     setQueryResult(null);
-  }, [currentExercise]);
+  }, [currentExercise, currentExerciseId]);
   
   // Toggle practice mode
   const togglePracticeMode = useCallback(() => {
@@ -255,7 +283,7 @@ export const AppProvider = ({ children }) => {
         perfectScores: 0,
         lastActiveDate: new Date().toISOString()
       });
-      setSavedQueries({});
+      setSavedQueries({}); // Clear all saved code
       localStorage.clear();
       
       // Reset to first exercise

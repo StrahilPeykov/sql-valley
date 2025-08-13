@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Lock, Circle, ChevronRight } from 'lucide-react';
+import { CheckCircle, Lock, Circle, ChevronRight, Edit3 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import { exercises } from '../../data/exercises';
 import styles from './SkillTree.module.css';
@@ -11,7 +11,8 @@ const SkillTree = () => {
     selectExercise, 
     isExerciseUnlocked,
     practiceMode,
-    togglePracticeMode
+    togglePracticeMode,
+    savedQueries
   } = useApp();
   
   const getExerciseStatus = (exercise) => {
@@ -19,6 +20,32 @@ const SkillTree = () => {
     if (currentExerciseId === exercise.id) return 'current';
     if (isExerciseUnlocked(exercise.id) || practiceMode) return 'available';
     return 'locked';
+  };
+  
+  const hasUnsavedWork = (exerciseId) => {
+    const savedCode = savedQueries[exerciseId];
+    if (!savedCode) return false;
+    
+    // Get the initial code for this exercise
+    const exercise = exercises.find(e => e.id === exerciseId);
+    const initialCode = exercise?.initialCode || '-- Write your SQL query here\n\n';
+    
+    // Normalize both codes (remove comments, extra whitespace, make lowercase)
+    const normalize = (code) => {
+      return code
+        .replace(/--[^\n]*/g, '') // Remove comments
+        .replace(/\s+/g, ' ')      // Normalize whitespace
+        .trim()
+        .toLowerCase();
+    };
+    
+    const normalizedSaved = normalize(savedCode);
+    const normalizedInitial = normalize(initialCode);
+    
+    // Only show pen if there's meaningful difference and some actual SQL content
+    return normalizedSaved !== normalizedInitial && 
+           normalizedSaved.length > 0 && 
+           !normalizedSaved.match(/^(write your sql query here)?$/);
   };
   
   const handleExerciseClick = (exercise) => {
@@ -52,10 +79,12 @@ const SkillTree = () => {
                 .filter(e => e.category === category)
                 .map(exercise => {
                   const status = getExerciseStatus(exercise);
+                  const hasSavedWork = hasUnsavedWork(exercise.id);
+                  
                   return (
                     <button
                       key={exercise.id}
-                      className={`${styles.exercise} ${styles[status]}`}
+                      className={`${styles.exercise} ${styles[status]} ${hasSavedWork ? styles.hasWork : ''}`}
                       onClick={() => handleExerciseClick(exercise)}
                       disabled={status === 'locked' && !practiceMode}
                     >
@@ -70,9 +99,14 @@ const SkillTree = () => {
                       </div>
                       
                       <div className={styles.exerciseInfo}>
-                        <span className={styles.exerciseTitle}>
-                          {exercise.id}. {exercise.title}
-                        </span>
+                        <div className={styles.exerciseTitleRow}>
+                          <span className={styles.exerciseTitle}>
+                            {exercise.id}. {exercise.title}
+                          </span>
+                          {hasSavedWork && (
+                            <Edit3 size={12} className={styles.workIndicator} title="Has saved work" />
+                          )}
+                        </div>
                         <span className={styles.exercisePoints}>
                           {exercise.points} pts
                         </span>
