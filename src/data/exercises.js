@@ -117,8 +117,8 @@ export const exercises = [
       {
         name: "Correct count",
         weight: 25,
-        check: (result) => result && result.length === 4,
-        feedback: "Should find exactly 4 employees with salary > 80000"
+        check: (result) => result && result.length === 3,
+        feedback: "Should find exactly 3 employees with salary > 80000"
       },
       {
         name: "All high earners",
@@ -373,7 +373,7 @@ WHERE salary > (
           if (!result || result.length !== 3) return false;
           const names = result.map(r => r[0]);
           return names.includes('Alice Johnson') && 
-                 names.includes('Frank Miller') && 
+                 names.includes('Carol White') && 
                  names.includes('Grace Wilson');
         },
         feedback: "Should identify the correct employees earning above department average"
