@@ -1,180 +1,457 @@
 .container {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, rgba(1, 26, 39, 0.9) 0%, rgba(1, 42, 74, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(199, 33, 37, 0.3);
+  border-radius: 20px;
+  padding: 24px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(199, 33, 37, 0.1);
+  position: relative;
+  overflow: hidden;
 }
 
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent,
+    var(--tue-red),
+    transparent
+  );
+  animation: shimmer 3s infinite;
+}
+
+/* Header */
 .header {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .titleSection {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 12px;
 }
 
 .headerIcon {
-  width: 28px;
-  height: 28px;
-  color: var(--color-primary);
+  width: 32px;
+  height: 32px;
+  color: var(--tue-red);
+  filter: drop-shadow(0 0 10px rgba(199, 33, 37, 0.5));
+  animation: pulse 3s ease-in-out infinite;
 }
 
 .title {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: var(--text-primary);
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
 }
 
 .subtitle {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: var(--spacing-xs) 0 0 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 0 0;
+}
+
+/* Practice Mode Button */
+.practiceModeButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.practiceModeButton:hover {
+  background: rgba(251, 191, 36, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.practiceModeButton.active {
+  background: rgba(251, 191, 36, 0.3);
+  border-color: #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+}
+
+/* Experience Bar */
+.experienceBar {
+  margin-bottom: 20px;
+}
+
+.expInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.expLabel {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.expValues {
+  color: var(--tue-red);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.expBarOuter {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.expBarInner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--tue-red) 0%, #fbbf24 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.expGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Tree Container */
+.treeContainer {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+.connectionCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .skillGrid {
-  flex: 1;
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  overflow-y: auto;
-  padding-right: var(--spacing-sm);
+  gap: 16px;
 }
 
+/* Category */
 .category {
-  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.category:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(199, 33, 37, 0.3);
 }
 
 .categoryHeader {
-  margin-bottom: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
   border-left: 4px solid var(--category-color);
 }
 
-.categoryHeader h3 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
+.categoryHeader:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
+.categoryIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: var(--category-color);
+}
+
+.categoryInfo {
+  flex: 1;
+}
+
+.categoryInfo h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.categoryDesc {
+  margin: 4px 0 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+/* Category Progress */
+.categoryProgress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progressRing {
+  width: 36px;
+  height: 36px;
+  position: relative;
+}
+
+.progressRing svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progressRingBg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 3;
+}
+
+.progressRingFill {
+  fill: none;
+  stroke: var(--category-color);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease;
+  filter: drop-shadow(0 0 5px var(--category-color));
+}
+
+.progressText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.expandIcon {
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.expandIcon.expanded {
+  transform: rotate(90deg);
+}
+
+/* Skill List */
 .skillList {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 12px;
+  padding: 16px;
+  animation: fadeIn 0.3s ease;
 }
 
+/* Skill Card */
 .skillCard {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-base);
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   cursor: pointer;
+  transition: all 0.3s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .skillCard:hover {
   background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
+.skillGlow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.skillCard:hover .skillGlow {
+  opacity: 1;
+}
+
+/* Skill Icon */
 .skillIcon {
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
   flex-shrink: 0;
+  transition: all 0.3s ease;
 }
 
+.completedIcon {
+  color: #4ade80;
+  filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.5));
+}
+
+.lockIcon {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Skill Info */
 .skillInfo {
   flex: 1;
 }
 
 .skillInfo h4 {
-  margin: 0 0 var(--spacing-xs) 0;
+  margin: 0 0 6px 0;
+  color: white;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
 }
 
 .skillMeta {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.difficulty {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.points {
+  color: #fbbf24;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Badges */
+.currentBadge,
+.completedBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .currentBadge {
-  position: absolute;
-  top: var(--spacing-xs);
-  right: var(--spacing-xs);
-  background: var(--color-warning);
-  color: black;
-  padding: 2px var(--spacing-xs);
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
 }
 
 .completedBadge {
-  position: absolute;
-  top: var(--spacing-xs);
-  right: var(--spacing-xs);
-  background: var(--color-success);
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  font-weight: 600;
+  background: rgba(74, 222, 128, 0.2);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  color: #4ade80;
 }
 
-/* Skill states */
+/* Skill States */
 .completed {
-  border-color: var(--color-success);
-  background: rgba(42, 157, 143, 0.1);
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
 }
 
 .completed .skillIcon {
-  background: var(--color-success);
-  color: white;
+  background: rgba(74, 222, 128, 0.2);
 }
 
 .current {
-  border-color: var(--color-warning);
-  background: rgba(233, 196, 106, 0.1);
+  border-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  animation: currentPulse 2s ease-in-out infinite;
 }
 
 .current .skillIcon {
-  background: var(--color-warning);
-  color: black;
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
 }
 
 .available {
-  border-color: var(--color-info);
+  border-color: #60a5fa;
 }
 
 .available .skillIcon {
-  background: rgba(69, 123, 157, 0.3);
-  color: var(--color-info);
+  background: rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
 }
 
 .locked {
@@ -183,69 +460,195 @@
 }
 
 .locked:hover {
-  background: rgba(255, 255, 255, 0.03);
   transform: none;
-}
-
-.locked .skillIcon {
   background: rgba(255, 255, 255, 0.05);
-  color: var(--text-muted);
 }
 
-.legend {
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(1, 26, 39, 0.98);
+  border: 1px solid var(--tue-red);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 250px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--tue-red);
+}
+
+.tooltip h5 {
+  margin: 0 0 8px 0;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tooltip p {
+  margin: 0 0 8px 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.tooltipMeta {
   display: flex;
-  justify-content: center;
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-md);
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+}
+
+.tooltipLocked {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f87171;
+  font-size: 0.8rem;
+}
+
+/* Progress Summary */
+.progressSummary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.legendItem {
+.summaryItem {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.legendDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid white;
+.summaryItem:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.legendDot.completed {
-  background: var(--color-success);
+.summaryIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--tue-red);
 }
 
-.legendDot.current {
-  background: var(--color-warning);
+.summaryItem > div {
+  display: flex;
+  flex-direction: column;
 }
 
-.legendDot.available {
-  background: var(--color-info);
+.summaryValue {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
 }
 
-.legendDot.locked {
-  background: var(--text-muted);
+.summaryLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(199, 33, 37, 0.5));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(199, 33, 37, 0.7));
+  }
+}
+
+@keyframes currentPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+  }
+}
+
+/* Scrollbar */
+.treeContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.treeContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.treeContainer::-webkit-scrollbar-thumb {
+  background: var(--tue-red);
+  border-radius: 3px;
   opacity: 0.5;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .skillCard {
-    gap: var(--spacing-sm);
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
   
-  .skillIcon {
-    width: 40px;
-    height: 40px;
+  .practiceModeButton {
+    width: 100%;
+    justify-content: center;
   }
   
-  .legend {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
+  .progressSummary {
+    grid-template-columns: 1fr;
+  }
+  
+  .tooltip {
+    display: none;
   }
 }
