@@ -7,6 +7,8 @@
  * - Switching exercises in practice mode: Always starts with fresh initial code
  * - Exiting practice mode: Restores original exercise and code from before practice
  * - Practice mode is completely isolated from real progress tracking
+ * 
+ * Also cleanup logic to prevent pen icons on locked exercises visited in practice mode
  */
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
@@ -289,7 +291,7 @@ export const AppProvider = ({ children }) => {
     setQueryResult(null);
   }, [currentExercise, currentExerciseId, practiceMode]);
   
-  // BEST PRACTICE: Toggle practice mode with smart exercise management AND isolated code
+  // Toggle practice mode with proper cleanup to prevent false "work indicators"
   const togglePracticeMode = useCallback(() => {
     setPracticeMode(prev => {
       const newPracticeMode = !prev;
@@ -310,6 +312,16 @@ export const AppProvider = ({ children }) => {
       }
       // Exiting practice mode
       else if (prev && !newPracticeMode) {
+        // Clean up saved code for locked exercises to prevent false "work indicators"
+        // This prevents the save effect from saving practice mode code for locked exercises
+        if (!isExerciseUnlocked(currentExerciseId)) {
+          setSavedQueries(prevSaved => {
+            const updated = { ...prevSaved };
+            delete updated[currentExerciseId];
+            return updated;
+          });
+        }
+        
         // Restore original exercise and code
         if (prePracticeExerciseId && isExerciseUnlocked(prePracticeExerciseId)) {
           setCurrentExerciseId(prePracticeExerciseId);

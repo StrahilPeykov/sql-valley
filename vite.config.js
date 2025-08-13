@@ -7,5 +7,9 @@ export default defineConfig({
   server: {
     host: '127.0.0.1', // Bind to IPv4 localhost
     port: 5173
-  }
+  },
+  optimizeDeps: {
+    exclude: ['sql.js']
+  },
+  assetsInclude: ['**/*.wasm']
 })

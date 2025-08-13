@@ -3,20 +3,20 @@ let SQL = null;
 let db = null;
 
 // Load SQL.js library
-export const initSqlJs = async () => {
+export const initSqlJsLibrary = async () => {
   if (SQL) return SQL;
   
   try {
-    // Dynamically load SQL.js
+    // Load SQL.js from CDN (more reliable than bundled version)
     const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js';
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js';
     document.head.appendChild(script);
     
     return new Promise((resolve, reject) => {
       script.onload = async () => {
         try {
           SQL = await window.initSqlJs({
-            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`
           });
           resolve(SQL);
         } catch (error) {
@@ -36,7 +36,7 @@ export const initDatabase = async () => {
   if (db) return db;
   
   try {
-    const sqlJs = await initSqlJs();
+    const sqlJs = await initSqlJsLibrary();
     const database = new sqlJs.Database();
     
     // Create schema
