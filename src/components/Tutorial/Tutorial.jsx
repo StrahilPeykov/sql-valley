@@ -265,3 +265,4 @@ ORDER BY salary DESC;`}
   );
 };
 
+export default Tutorial;
