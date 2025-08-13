@@ -43,8 +43,6 @@ export const AppProvider = ({ children }) => {
   });
   
   // UI State
-  const [showHint, setShowHint] = useState(false);
-  const [hintsUsed, setHintsUsed] = useState(0);
   const [feedback, setFeedback] = useState(null);
   const [queryResult, setQueryResult] = useState(null);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -70,7 +68,6 @@ export const AppProvider = ({ children }) => {
       successfulQueries: 0,
       totalTime: 0,
       perfectScores: 0,
-      hintsUsedTotal: 0,
       lastActiveDate: new Date().toISOString()
     };
   });
@@ -120,8 +117,6 @@ export const AppProvider = ({ children }) => {
       }
       setFeedback(null);
       setQueryResult(null);
-      setShowHint(false);
-      setHintsUsed(0);
     }
   }, [currentExerciseId]);
   
@@ -180,19 +175,13 @@ export const AppProvider = ({ children }) => {
     if (!completedExercises.includes(exerciseId) && !practiceMode) {
       setCompletedExercises(prev => [...prev, exerciseId]);
       
-      // Calculate final points (with hint penalty)
-      const exercise = exercises.find(e => e.id === exerciseId);
-      let finalPoints = points + bonusPoints;
-      
-      if (exercise && exercise.hints && hintsUsed > 0) {
-        const penalty = exercise.hints.slice(0, hintsUsed).reduce((sum, hint) => sum + hint.penalty, 0);
-        finalPoints = Math.max(points * 0.5, points - penalty); // Minimum 50% points
-      }
-      
+      // Add points (no hint penalties since we removed hints)
+      const finalPoints = points + bonusPoints;
       setTotalPoints(prev => prev + finalPoints);
       setStreak(prev => prev + 1);
       
       // Check for badges
+      const exercise = exercises.find(e => e.id === exerciseId);
       if (exercise && exercise.badges) {
         exercise.badges.forEach(badge => {
           if (!unlockedBadges.includes(badge.id)) {
@@ -206,7 +195,7 @@ export const AppProvider = ({ children }) => {
         });
       }
     }
-  }, [completedExercises, practiceMode, hintsUsed, unlockedBadges]);
+  }, [completedExercises, practiceMode, unlockedBadges]);
   
   // Reset current exercise
   const resetCurrentExercise = useCallback(() => {
@@ -215,33 +204,7 @@ export const AppProvider = ({ children }) => {
     }
     setFeedback(null);
     setQueryResult(null);
-    setShowHint(false);
-    setHintsUsed(0);
   }, [currentExercise]);
-  
-  // Use hint - Fixed to work with the updated ExercisePanel
-  const useHint = useCallback(() => {
-    const exercise = currentExercise;
-    if (exercise && exercise.hints && hintsUsed < exercise.hints.length) {
-      setHintsUsed(prev => prev + 1);
-      setShowHint(true);
-      
-      // Update statistics
-      setStatistics(prev => ({
-        ...prev,
-        hintsUsedTotal: prev.hintsUsedTotal + 1
-      }));
-    }
-  }, [currentExercise, hintsUsed]);
-  
-  // Override setShowHint to use the hint when showing
-  const setShowHintOverride = useCallback((show) => {
-    if (show && hintsUsed === 0) {
-      useHint();
-    } else {
-      setShowHint(show);
-    }
-  }, [useHint, hintsUsed]);
   
   // Toggle practice mode
   const togglePracticeMode = useCallback(() => {
@@ -290,7 +253,6 @@ export const AppProvider = ({ children }) => {
         successfulQueries: 0,
         totalTime: 0,
         perfectScores: 0,
-        hintsUsedTotal: 0,
         lastActiveDate: new Date().toISOString()
       });
       setSavedQueries({});
@@ -320,8 +282,6 @@ export const AppProvider = ({ children }) => {
     totalPoints,
     userLevel,
     streak,
-    showHint,
-    hintsUsed,
     feedback,
     queryResult,
     isExecuting,
@@ -341,8 +301,6 @@ export const AppProvider = ({ children }) => {
     completeExercise,
     resetCurrentExercise,
     isExerciseUnlocked,
-    setShowHint: setShowHintOverride,
-    useHint,
     setFeedback,
     setQueryResult,
     setIsExecuting,

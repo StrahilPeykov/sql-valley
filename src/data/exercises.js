@@ -22,24 +22,6 @@ export const exercises = [
     Example:
     SELECT * FROM users WHERE age > 18;`,
     
-    hints: [
-      { 
-        level: 1, 
-        text: "Start with SELECT * FROM employees",
-        penalty: 2 
-      },
-      { 
-        level: 2, 
-        text: "Add WHERE department = 'Engineering'",
-        penalty: 3 
-      },
-      { 
-        level: 3, 
-        text: "Complete solution: SELECT * FROM employees WHERE department = 'Engineering'",
-        penalty: 5 
-      }
-    ],
-    
     initialCode: "-- Retrieve all employees from Engineering department\n-- Try: SELECT * FROM employees WHERE department = 'Engineering'\n\nSELECT * FROM employees",
     solution: "SELECT * FROM employees WHERE department = 'Engineering'",
     alternativeSolutions: [
@@ -122,12 +104,6 @@ export const exercises = [
     WHERE price > 100 
     ORDER BY price DESC;`,
     
-    hints: [
-      { level: 1, text: "Use WHERE salary > 80000", penalty: 2 },
-      { level: 2, text: "Add ORDER BY salary DESC", penalty: 3 },
-      { level: 3, text: "SELECT * FROM employees WHERE salary > 80000 ORDER BY salary DESC", penalty: 5 }
-    ],
-    
     initialCode: "-- Find high-earning employees\n-- Filter by salary > 80000 and sort by salary (highest first)\n\nSELECT * FROM employees\nWHERE ",
     solution: "SELECT * FROM employees WHERE salary > 80000 ORDER BY salary DESC",
     
@@ -204,12 +180,6 @@ export const exercises = [
     GROUP BY department;
     
     Rule: Non-aggregate columns in SELECT must be in GROUP BY`,
-    
-    hints: [
-      { level: 1, text: "Use AVG(salary) to calculate average", penalty: 2 },
-      { level: 2, text: "GROUP BY department is required", penalty: 3 },
-      { level: 3, text: "SELECT department, AVG(salary) as avg_salary FROM employees GROUP BY department ORDER BY avg_salary DESC", penalty: 5 }
-    ],
     
     initialCode: "-- Calculate average salary by department\n-- Group by department and order by average salary (highest first)\n\nSELECT department, AVG(salary) as avg_salary\nFROM employees\n",
     solution: "SELECT department, AVG(salary) as avg_salary FROM employees GROUP BY department ORDER BY avg_salary DESC",
@@ -298,12 +268,6 @@ export const exercises = [
     JOIN departments d ON p.department_id = d.id
     WHERE p.status = 'Active';`,
     
-    hints: [
-      { level: 1, text: "Use JOIN to connect projects and departments tables", penalty: 3 },
-      { level: 2, text: "Join ON p.department_id = d.id", penalty: 4 },
-      { level: 3, text: "Add WHERE p.status = 'Active' to filter", penalty: 5 }
-    ],
-    
     initialCode: "-- Join projects with departments to show active projects\n-- Show: project name, department name, location, budget\n\nSELECT p.name, d.name, d.location, p.budget\nFROM projects p\nJOIN departments d ON ",
     solution: "SELECT p.name as project_name, d.name as dept_name, d.location, p.budget FROM projects p JOIN departments d ON p.department_id = d.id WHERE p.status = 'Active'",
     
@@ -380,12 +344,6 @@ export const exercises = [
     
     This compares each employee's salary to their department's average.`,
     
-    hints: [
-      { level: 1, text: "Use a subquery to calculate department average", penalty: 3 },
-      { level: 2, text: "Make it correlated: WHERE e2.department = e1.department", penalty: 4 },
-      { level: 3, text: "Full solution uses correlated subquery with AVG", penalty: 6 }
-    ],
-    
     initialCode: "-- Find employees earning above their department average\n-- Use a correlated subquery to calculate department averages\n\nSELECT name, department, salary\nFROM employees e1\nWHERE salary > (\n  SELECT AVG(salary)\n  FROM employees e2\n  WHERE ",
     solution: `SELECT name, department, salary 
 FROM employees e1 
@@ -461,12 +419,6 @@ WHERE salary > (
     ORDER BY SUM(salary) DESC;
     
     You can use multiple aggregate functions in one query.`,
-    
-    hints: [
-      { level: 1, text: "Use GROUP BY department with multiple aggregates", penalty: 3 },
-      { level: 2, text: "HAVING SUM(salary) > 150000 filters after grouping", penalty: 4 },
-      { level: 3, text: "Include COUNT(*) for employee count and SUM(salary) for total", penalty: 6 }
-    ],
     
     initialCode: "-- Find departments with high salary budgets\n-- Show: department, employee count, total salary\n-- Only departments with total > 150000\n\nSELECT department, COUNT(*) as emp_count, SUM(salary) as total_salary\nFROM employees\nGROUP BY department\n",
     solution: `SELECT department, COUNT(*) as emp_count, SUM(salary) as total_salary
@@ -547,12 +499,6 @@ ORDER BY total_salary DESC`,
     WHERE conditions;
     
     You can also combine JOINs with subqueries for complex analysis.`,
-    
-    hints: [
-      { level: 1, text: "Start by joining employees with departments", penalty: 3 },
-      { level: 2, text: "Use a subquery to count projects per department", penalty: 5 },
-      { level: 3, text: "Combine the JOIN with a correlated subquery for project count", penalty: 7 }
-    ],
     
     initialCode: "-- Find employees with department budget and project count\n-- Show: name, department, dept_budget, project_count\n\nSELECT \n  e.name, \n  e.department, \n  d.budget as dept_budget,\n  (SELECT COUNT(*) FROM projects p WHERE p.department_id = d.id) as project_count\nFROM employees e\nJOIN departments d ON ",
     solution: `SELECT 
