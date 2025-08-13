@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Info } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import TheoryModal from './TheoryModal';
 import styles from './Exercise.module.css';
@@ -13,9 +13,21 @@ const ExercisePanel = () => {
       <div className={styles.panel}>
         <div className={styles.header}>
           <div className={styles.titleSection}>
-            <h3 className={styles.title}>
-              Exercise {currentExercise.id}: {currentExercise.title}
-            </h3>
+            <div className={styles.titleRow}>
+              <h3 className={styles.title}>
+                Exercise {currentExercise.id}: {currentExercise.title}
+              </h3>
+              {currentExercise.theory && (
+                <button
+                  onClick={() => setShowTheoryModal(true)}
+                  className={styles.theoryBadge}
+                  title="Click to view theory and concepts for this exercise"
+                >
+                  <Info size={16} />
+                  <span>Theory</span>
+                </button>
+              )}
+            </div>
             <div className={styles.metadata}>
               <span className={styles.difficulty}>{currentExercise.difficulty}</span>
               <span className={styles.points}>{currentExercise.points} points</span>
@@ -27,18 +39,6 @@ const ExercisePanel = () => {
           <p className={styles.description}>
             {currentExercise.description}
           </p>
-          
-          {currentExercise.theory && (
-            <div className={styles.actions}>
-              <button
-                onClick={() => setShowTheoryModal(true)}
-                className={styles.theoryButton}
-              >
-                <BookOpen size={16} />
-                View Theory
-              </button>
-            </div>
-          )}
         </div>
       </div>
       
