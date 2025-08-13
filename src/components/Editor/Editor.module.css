@@ -213,17 +213,19 @@
 
 .suggestions {
   position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  top: calc(100% + 4px);
+  left: 12px;
+  right: 12px;
   background: white;
   border: 1px solid #dee2e6;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
   max-height: 200px;
   overflow-y: auto;
+  
+  /* Ensure it appears above other elements */
+  backdrop-filter: blur(1px);
 }
 
 .suggestion {
@@ -231,12 +233,46 @@
   cursor: pointer;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.875rem;
-  transition: background 0.1s ease;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid #f1f3f5;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  
+  /* Prevent text selection for better UX */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.suggestion:last-child {
+  border-bottom: none;
 }
 
 .suggestion:hover,
 .suggestion.selected {
-  background: #f8f9fa;
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.suggestion.selected {
+  background: #1976d2;
+  color: white;
+}
+
+/* Add a subtle animation for suggestions appearing */
+.suggestions {
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .editorFooter {
@@ -405,5 +441,11 @@
   .footerCenter,
   .footerRight {
     justify-content: center;
+  }
+  
+  /* Make suggestions full width on mobile */
+  .suggestions {
+    left: 4px;
+    right: 4px;
   }
 }

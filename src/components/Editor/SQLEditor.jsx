@@ -132,6 +132,7 @@ const SQLEditor = ({ onExecute }) => {
     isExecuting,
     currentExercise,
     practiceMode,
+    currentExerciseId,
     showLineNumbers = true
   } = useApp();
   
@@ -140,14 +141,26 @@ const SQLEditor = ({ onExecute }) => {
   const [selectedSuggestion, setSelectedSuggestion] = useState(0);
   const [executionTime, setExecutionTime] = useState(null);
   const [syntaxErrors, setSyntaxErrors] = useState([]);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [currentWord, setCurrentWord] = useState('');
+  const [wordStart, setWordStart] = useState(0);
+  const textareaRef = useRef(null);
   
   // SQL keywords and completions
   const SQL_COMPLETIONS = [
     'SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT JOIN', 'INNER JOIN',
     'GROUP BY', 'ORDER BY', 'HAVING', 'COUNT', 'SUM', 'AVG', 'MAX', 'MIN',
     'employees', 'departments', 'projects',
-    'id', 'name', 'salary', 'department', 'budget', 'location', 'status'
+    'id', 'name', 'salary', 'department', 'budget', 'location', 'status',
+    'hire_date', 'manager_id', 'department_id', 'start_date', 'end_date'
   ];
+  
+  // Reset suggestions when exercise changes
+  useEffect(() => {
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setSelectedSuggestion(0);
+  }, [currentExerciseId]);
   
   // Basic SQL syntax validation
   const validateSyntax = useCallback((code) => {
@@ -170,20 +183,43 @@ const SQLEditor = ({ onExecute }) => {
     return errors.filter(e => e.type === 'error').length === 0;
   }, []);
   
-  // Auto-completion logic
-  const updateSuggestions = useCallback((code, cursorPosition) => {
-    const beforeCursor = code.substring(0, cursorPosition);
-    const words = beforeCursor.split(/\s+/);
-    const currentWord = words[words.length - 1].toUpperCase();
+  // Get word at cursor position
+  const getWordAtCursor = useCallback((text, position) => {
+    const beforeCursor = text.substring(0, position);
+    const afterCursor = text.substring(position);
     
-    if (currentWord.length < 2) {
+    // Find word boundaries
+    const wordRegex = /\w+$/;
+    const beforeMatch = beforeCursor.match(wordRegex);
+    const afterMatch = afterCursor.match(/^\w+/);
+    
+    const wordStartPos = beforeMatch ? position - beforeMatch[0].length : position;
+    const word = (beforeMatch ? beforeMatch[0] : '') + (afterMatch ? afterMatch[0] : '');
+    
+    return {
+      word: beforeMatch ? beforeMatch[0] : '',
+      start: wordStartPos,
+      end: position + (afterMatch ? afterMatch[0].length : 0)
+    };
+  }, []);
+  
+  // Auto-completion logic
+  const updateSuggestions = useCallback((code, cursorPos) => {
+    const wordInfo = getWordAtCursor(code, cursorPos);
+    const currentWordLower = wordInfo.word.toLowerCase();
+    
+    setCurrentWord(wordInfo.word);
+    setWordStart(wordInfo.start);
+    
+    if (currentWordLower.length < 2) {
       setShowSuggestions(false);
       return;
     }
     
     const filtered = SQL_COMPLETIONS
-      .filter(item => item.toUpperCase().startsWith(currentWord))
-      .slice(0, 5);
+      .filter(item => item.toLowerCase().startsWith(currentWordLower))
+      .filter(item => item.toLowerCase() !== currentWordLower) // Don't suggest exact matches
+      .slice(0, 8);
     
     if (filtered.length > 0) {
       setSuggestions(filtered);
@@ -192,19 +228,44 @@ const SQLEditor = ({ onExecute }) => {
     } else {
       setShowSuggestions(false);
     }
-  }, []);
+  }, [getWordAtCursor]);
   
   // Handle text change
   const handleChange = (e) => {
     const newCode = e.target.value;
+    const newCursorPos = e.target.selectionStart;
+    
     setUserCode(newCode);
+    setCursorPosition(newCursorPos);
     
     // Validate syntax
     validateSyntax(newCode);
     
     // Update suggestions based on cursor position
-    updateSuggestions(newCode, e.target.selectionStart);
+    updateSuggestions(newCode, newCursorPos);
   };
+  
+  // Apply autocomplete suggestion
+  const applySuggestion = useCallback((suggestion) => {
+    if (!textareaRef.current) return;
+    
+    const textarea = textareaRef.current.querySelector('textarea');
+    if (!textarea) return;
+    
+    const beforeWord = userCode.substring(0, wordStart);
+    const afterWord = userCode.substring(wordStart + currentWord.length);
+    const newCode = beforeWord + suggestion + afterWord;
+    const newCursorPos = wordStart + suggestion.length;
+    
+    setUserCode(newCode);
+    setShowSuggestions(false);
+    
+    // Focus and set cursor position
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  }, [userCode, wordStart, currentWord]);
   
   // Handle keyboard shortcuts
   const handleKeyDown = (e) => {
@@ -257,11 +318,18 @@ const SQLEditor = ({ onExecute }) => {
     }
   };
   
-  // Apply autocomplete suggestion
-  const applySuggestion = (suggestion) => {
-    // This would need cursor position tracking to work properly
-    setShowSuggestions(false);
-  };
+  // Handle clicks outside suggestions to close them
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showSuggestions && !event.target.closest(`.${styles.suggestions}`) && 
+          !event.target.closest(`.${styles.codeEditorContainer}`)) {
+        setShowSuggestions(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSuggestions]);
   
   // Execute query with timing
   const handleExecute = async () => {
@@ -341,7 +409,7 @@ const SQLEditor = ({ onExecute }) => {
       </div>
       
       <div className={styles.editorBody}>
-        <div className={styles.editorWrapper}>
+        <div className={styles.editorWrapper} ref={textareaRef}>
           <CodeEditor
             value={userCode}
             onChange={handleChange}
@@ -364,7 +432,11 @@ const SQLEditor = ({ onExecute }) => {
                   className={`${styles.suggestion} ${
                     index === selectedSuggestion ? styles.selected : ''
                   }`}
-                  onClick={() => applySuggestion(suggestion)}
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Prevent losing focus
+                    applySuggestion(suggestion);
+                  }}
+                  onMouseEnter={() => setSelectedSuggestion(index)}
                 >
                   {suggestion}
                 </div>
