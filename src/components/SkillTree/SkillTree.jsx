@@ -19,7 +19,7 @@ const SkillTree = () => {
     getExperienceProgress,
     practiceMode,
     togglePracticeMode,
-    progressPercentage  // ✅ Added this missing prop
+    progressPercentage
   } = useApp();
   
   const canvasRef = useRef(null);
