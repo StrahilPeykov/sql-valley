@@ -26,16 +26,28 @@ const highlightSQL = (code) => {
   
   const tables = ['employees', 'departments', 'projects'];
   
+  // First, extract and preserve comments and strings with placeholders
+  const preservedItems = [];
   let highlighted = code;
   
-  // Highlight strings
-  highlighted = highlighted.replace(/'([^']*)'/g, '<span style="color: #22c55e;">\'$1\'</span>');
+  // Extract comments
+  highlighted = highlighted.replace(/(--[^\n]*)/g, (match) => {
+    const index = preservedItems.length;
+    preservedItems.push(`<span style="color: #64748b; font-style: italic;">${match}</span>`);
+    return `__COMMENT_${index}__`;
+  });
+  
+  // Extract strings
+  highlighted = highlighted.replace(/'([^']*)'/g, (match, content) => {
+    const index = preservedItems.length;
+    preservedItems.push(`<span style="color: #22c55e;">'${content}'</span>`);
+    return `__STRING_${index}__`;
+  });
+  
+  // Now do highlighting on the remaining code (no comments or strings)
   
   // Highlight numbers
   highlighted = highlighted.replace(/\b(\d+)\b/g, '<span style="color: #f97316;">$1</span>');
-  
-  // Highlight comments
-  highlighted = highlighted.replace(/(--[^\n]*)/g, '<span style="color: #64748b; font-style: italic;">$1</span>');
   
   // Highlight keywords
   keywords.forEach(keyword => {
@@ -53,6 +65,12 @@ const highlightSQL = (code) => {
   tables.forEach(table => {
     const regex = new RegExp(`\\b(${table})\\b`, 'gi');
     highlighted = highlighted.replace(regex, '<span style="color: #ef4444; font-weight: 500;">$1</span>');
+  });
+  
+  // Finally, restore preserved comments and strings
+  preservedItems.forEach((item, index) => {
+    highlighted = highlighted.replace(`__COMMENT_${index}__`, item);
+    highlighted = highlighted.replace(`__STRING_${index}__`, item);
   });
   
   return highlighted;
