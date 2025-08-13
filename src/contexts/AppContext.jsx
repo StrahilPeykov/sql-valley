@@ -1,3 +1,14 @@
+/**
+ * SQL Valley App Context
+ * 
+ * Practice Mode Behavior:
+ * - Entering practice mode: Saves current exercise and code, loads fresh initial code
+ * - In practice mode: Code changes are temporary and not saved to localStorage  
+ * - Switching exercises in practice mode: Always starts with fresh initial code
+ * - Exiting practice mode: Restores original exercise and code from before practice
+ * - Practice mode is completely isolated from real progress tracking
+ */
+
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { exercises, calculateScore, generateDetailedFeedback, exerciseUtils } from '../data/exercises';
 
@@ -47,6 +58,7 @@ export const AppProvider = ({ children }) => {
   const [queryResult, setQueryResult] = useState(null);
   const [isExecuting, setIsExecuting] = useState(false);
   const [practiceMode, setPracticeMode] = useState(false);
+  const [prePracticeExerciseId, setPrePracticeExerciseId] = useState(null);
   const [showTutorial, setShowTutorial] = useState(() => {
     const saved = localStorage.getItem('tutorialCompleted');
     return !saved;
@@ -54,6 +66,8 @@ export const AppProvider = ({ children }) => {
   
   // Code State
   const [userCode, setUserCode] = useState('');
+  const [practiceCode, setPracticeCode] = useState('');
+  const [prePracticeCode, setPrePracticeCode] = useState('');
   const [executionHistory, setExecutionHistory] = useState([]);
   const [savedQueries, setSavedQueries] = useState(() => {
     const saved = localStorage.getItem('savedQueries');
@@ -108,10 +122,16 @@ export const AppProvider = ({ children }) => {
   // Get current exercise
   const currentExercise = exercises.find(ex => ex.id === currentExerciseId) || exercises[0];
   
-  // Initialize exercise code when exercise changes - SMART VERSION
+  // Initialize exercise code when exercise changes - SMART VERSION with practice mode handling
   useEffect(() => {
     if (currentExercise) {
-      // Check if we have saved code for this exercise
+      // In practice mode, don't auto-load saved code
+      if (practiceMode) {
+        // Practice mode handles its own code loading in selectExercise and togglePracticeMode
+        return;
+      }
+      
+      // Normal mode: Check if we have saved code for this exercise
       const savedCode = savedQueries[currentExerciseId];
       if (savedCode) {
         // Restore saved code
@@ -123,11 +143,11 @@ export const AppProvider = ({ children }) => {
       setFeedback(null);
       setQueryResult(null);
     }
-  }, [currentExerciseId, savedQueries]);
+  }, [currentExerciseId, savedQueries, practiceMode, currentExercise]);
   
-  // Save user code whenever it changes (with debouncing)
+  // Save user code whenever it changes (with debouncing) - BUT NOT IN PRACTICE MODE
   useEffect(() => {
-    if (userCode && currentExerciseId) {
+    if (userCode && currentExerciseId && !practiceMode) {
       const timeoutId = setTimeout(() => {
         setSavedQueries(prev => ({
           ...prev,
@@ -137,7 +157,7 @@ export const AppProvider = ({ children }) => {
       
       return () => clearTimeout(timeoutId);
     }
-  }, [userCode, currentExerciseId]);
+  }, [userCode, currentExerciseId, practiceMode]);
   
   // Initialize on first load if no code exists
   useEffect(() => {
@@ -149,19 +169,48 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
   
+  // Check if exercise is unlocked
+  const isExerciseUnlocked = useCallback((exerciseId) => {
+    const exercise = exercises.find(ex => ex.id === exerciseId);
+    if (!exercise) return false;
+    
+    // First exercise is always unlocked
+    if (exerciseId === 1) return true;
+    
+    // Check prerequisites
+    if (exercise.prerequisites) {
+      return exercise.prerequisites.every(prereqId => 
+        completedExercises.includes(prereqId)
+      );
+    }
+    
+    return true;
+  }, [completedExercises]);
+  
   // Select exercise
   const selectExercise = useCallback((exerciseId) => {
     const exercise = exercises.find(ex => ex.id === exerciseId);
     if (exercise) {
       setCurrentExerciseId(exerciseId);
       
-      // Track attempt
-      setExerciseAttempts(prev => ({
-        ...prev,
-        [exerciseId]: (prev[exerciseId] || 0) + 1
-      }));
+      // In practice mode, always start with fresh initial code
+      if (practiceMode) {
+        const initialCode = exercise.initialCode || '-- Write your SQL query here\n\n';
+        setPracticeCode(initialCode);
+        setUserCode(initialCode);
+        setFeedback(null);
+        setQueryResult(null);
+      }
+      
+      // Track attempt (only for non-practice mode)
+      if (!practiceMode) {
+        setExerciseAttempts(prev => ({
+          ...prev,
+          [exerciseId]: (prev[exerciseId] || 0) + 1
+        }));
+      }
     }
-  }, []);
+  }, [practiceMode]);
   
   // Process test results and generate feedback
   const processQueryResults = useCallback((exercise, result, executionTime) => {
@@ -223,44 +272,80 @@ export const AppProvider = ({ children }) => {
   const resetCurrentExercise = useCallback(() => {
     if (currentExercise && currentExercise.initialCode) {
       setUserCode(currentExercise.initialCode);
-      // Clear saved code for this exercise so it starts fresh next time
-      setSavedQueries(prev => {
-        const updated = { ...prev };
-        delete updated[currentExerciseId];
-        return updated;
-      });
+      
+      // In practice mode, also update practice code
+      if (practiceMode) {
+        setPracticeCode(currentExercise.initialCode);
+      } else {
+        // Clear saved code for this exercise so it starts fresh next time
+        setSavedQueries(prev => {
+          const updated = { ...prev };
+          delete updated[currentExerciseId];
+          return updated;
+        });
+      }
     }
     setFeedback(null);
     setQueryResult(null);
-  }, [currentExercise, currentExerciseId]);
+  }, [currentExercise, currentExerciseId, practiceMode]);
   
-  // Toggle practice mode
+  // BEST PRACTICE: Toggle practice mode with smart exercise management AND isolated code
   const togglePracticeMode = useCallback(() => {
-    setPracticeMode(prev => !prev);
-    if (practiceMode) {
+    setPracticeMode(prev => {
+      const newPracticeMode = !prev;
+      
+      // Entering practice mode
+      if (!prev && newPracticeMode) {
+        // Remember current exercise and code to return to later
+        setPrePracticeExerciseId(currentExerciseId);
+        setPrePracticeCode(userCode);
+        
+        // Initialize practice code with current exercise's initial code
+        const currentExerciseInitialCode = currentExercise?.initialCode || '-- Write your SQL query here\n\n';
+        setPracticeCode(currentExerciseInitialCode);
+        setUserCode(currentExerciseInitialCode);
+        
+        setFeedback(null);
+        setQueryResult(null);
+      }
       // Exiting practice mode
-      setFeedback(null);
-      setQueryResult(null);
-    }
-  }, [practiceMode]);
-  
-  // Check if exercise is unlocked
-  const isExerciseUnlocked = useCallback((exerciseId) => {
-    const exercise = exercises.find(ex => ex.id === exerciseId);
-    if (!exercise) return false;
-    
-    // First exercise is always unlocked
-    if (exerciseId === 1) return true;
-    
-    // Check prerequisites
-    if (exercise.prerequisites) {
-      return exercise.prerequisites.every(prereqId => 
-        completedExercises.includes(prereqId)
-      );
-    }
-    
-    return true;
-  }, [completedExercises]);
+      else if (prev && !newPracticeMode) {
+        // Restore original exercise and code
+        if (prePracticeExerciseId && isExerciseUnlocked(prePracticeExerciseId)) {
+          setCurrentExerciseId(prePracticeExerciseId);
+          setUserCode(prePracticeCode);
+        }
+        // Fallback: current exercise if accessible, but restore its saved code
+        else if (isExerciseUnlocked(currentExerciseId)) {
+          const savedCode = savedQueries[currentExerciseId];
+          const initialCode = currentExercise?.initialCode || '-- Write your SQL query here\n\n';
+          setUserCode(savedCode || initialCode);
+        }
+        // Fallback: highest unlocked exercise
+        else {
+          const unlockedExercises = exercises.filter(ex => isExerciseUnlocked(ex.id));
+          const highestUnlocked = unlockedExercises.reduce((highest, ex) => 
+            ex.id > highest.id ? ex : highest, unlockedExercises[0]
+          );
+          if (highestUnlocked) {
+            setCurrentExerciseId(highestUnlocked.id);
+            const savedCode = savedQueries[highestUnlocked.id];
+            const initialCode = highestUnlocked.initialCode || '-- Write your SQL query here\n\n';
+            setUserCode(savedCode || initialCode);
+          }
+        }
+        
+        // Clear practice mode memory
+        setPrePracticeExerciseId(null);
+        setPrePracticeCode('');
+        setPracticeCode('');
+        setFeedback(null);
+        setQueryResult(null);
+      }
+      
+      return newPracticeMode;
+    });
+  }, [currentExerciseId, currentExercise, prePracticeExerciseId, prePracticeCode, userCode, isExerciseUnlocked, savedQueries]);
   
   // Get next recommended exercise
   const getNextExercise = useCallback(() => {
@@ -284,6 +369,10 @@ export const AppProvider = ({ children }) => {
         lastActiveDate: new Date().toISOString()
       });
       setSavedQueries({}); // Clear all saved code
+      setPrePracticeExerciseId(null); // Clear practice mode memory
+      setPrePracticeCode(''); // Clear practice mode code memory
+      setPracticeCode(''); // Clear current practice code
+      setPracticeMode(false); // Exit practice mode
       localStorage.clear();
       
       // Reset to first exercise
