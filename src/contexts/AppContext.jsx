@@ -32,7 +32,7 @@ export const AppProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : {};
   });
   
-  // Achievement System
+  // Achievement System (simplified)
   const [unlockedBadges, setUnlockedBadges] = useState(() => {
     const saved = localStorage.getItem('unlockedBadges');
     return saved ? JSON.parse(saved) : [];
@@ -111,16 +111,6 @@ export const AppProvider = ({ children }) => {
   // Get current exercise
   const currentExercise = exercises.find(ex => ex.id === currentExerciseId) || exercises[0];
   
-  // Calculate user level based on points
-  const calculateLevel = useCallback((points) => {
-    if (points < 50) return 1;
-    if (points < 100) return 2;
-    if (points < 200) return 3;
-    if (points < 350) return 4;
-    if (points < 500) return 5;
-    return Math.floor(points / 100);
-  }, []);
-  
   // Select exercise
   const selectExercise = useCallback((exerciseId) => {
     const exercise = exercises.find(ex => ex.id === exerciseId);
@@ -169,7 +159,7 @@ export const AppProvider = ({ children }) => {
     return detailedFeedback;
   }, [userCode]);
   
-  // Complete exercise with achievements
+  // Complete exercise
   const completeExercise = useCallback((exerciseId, points, bonusPoints = 0) => {
     if (!completedExercises.includes(exerciseId) && !practiceMode) {
       setCompletedExercises(prev => [...prev, exerciseId]);
@@ -183,12 +173,7 @@ export const AppProvider = ({ children }) => {
         finalPoints = Math.max(points * 0.5, points - penalty); // Minimum 50% points
       }
       
-      setTotalPoints(prev => {
-        const newTotal = prev + finalPoints;
-        setUserLevel(calculateLevel(newTotal));
-        return newTotal;
-      });
-      
+      setTotalPoints(prev => prev + finalPoints);
       setStreak(prev => prev + 1);
       
       // Check for badges
@@ -204,59 +189,8 @@ export const AppProvider = ({ children }) => {
           }
         });
       }
-      
-      // Check for milestone achievements
-      checkMilestoneAchievements(completedExercises.length + 1, totalPoints + finalPoints);
     }
-  }, [completedExercises, practiceMode, hintsUsed, totalPoints, unlockedBadges, calculateLevel]);
-  
-  // Check milestone achievements
-  const checkMilestoneAchievements = useCallback((exerciseCount, points) => {
-    const milestones = [
-      { count: 1, name: "First Steps", description: "Complete your first exercise", icon: "👶" },
-      { count: 3, name: "Getting Started", description: "Complete 3 exercises", icon: "🚀" },
-      { count: 5, name: "Halfway There", description: "Complete 5 exercises", icon: "⭐" },
-      { count: exercises.length, name: "SQL Master", description: "Complete all exercises", icon: "🏆" }
-    ];
-    
-    const pointMilestones = [
-      { points: 50, name: "Point Collector", description: "Earn 50 points", icon: "💰" },
-      { points: 100, name: "Century Club", description: "Earn 100 points", icon: "💯" },
-      { points: 200, name: "High Achiever", description: "Earn 200 points", icon: "🎯" }
-    ];
-    
-    milestones.forEach(milestone => {
-      if (exerciseCount === milestone.count) {
-        const achievementId = `milestone_${milestone.count}`;
-        if (!achievements.some(a => a.id === achievementId)) {
-          setAchievements(prev => [...prev, {
-            id: achievementId,
-            type: 'milestone',
-            name: milestone.name,
-            description: milestone.description,
-            icon: milestone.icon,
-            timestamp: new Date().toISOString()
-          }]);
-        }
-      }
-    });
-    
-    pointMilestones.forEach(milestone => {
-      if (points >= milestone.points) {
-        const achievementId = `points_${milestone.points}`;
-        if (!achievements.some(a => a.id === achievementId)) {
-          setAchievements(prev => [...prev, {
-            id: achievementId,
-            type: 'points',
-            name: milestone.name,
-            description: milestone.description,
-            icon: milestone.icon,
-            timestamp: new Date().toISOString()
-          }]);
-        }
-      }
-    });
-  }, [achievements, exercises.length]);
+  }, [completedExercises, practiceMode, hintsUsed, unlockedBadges]);
   
   // Reset current exercise
   const resetCurrentExercise = useCallback(() => {
@@ -281,28 +215,6 @@ export const AppProvider = ({ children }) => {
       }));
     }
   }, [currentExercise]);
-  
-  // Save query
-  const saveQuery = useCallback((name, query) => {
-    setSavedQueries(prev => ({
-      ...prev,
-      [currentExerciseId]: {
-        ...prev[currentExerciseId],
-        [name]: {
-          query,
-          timestamp: new Date().toISOString()
-        }
-      }
-    }));
-  }, [currentExerciseId]);
-  
-  // Load saved query
-  const loadSavedQuery = useCallback((exerciseId, name) => {
-    const saved = savedQueries[exerciseId]?.[name];
-    if (saved) {
-      setUserCode(saved.query);
-    }
-  }, [savedQueries]);
   
   // Toggle practice mode
   const togglePracticeMode = useCallback(() => {
@@ -373,21 +285,6 @@ export const AppProvider = ({ children }) => {
     (completedExercises.length / exercises.length) * 100
   );
   
-  // Calculate experience to next level
-  const getExperienceProgress = useCallback(() => {
-    const levelThresholds = [0, 50, 100, 200, 350, 500];
-    const currentThreshold = levelThresholds[userLevel - 1] || 0;
-    const nextThreshold = levelThresholds[userLevel] || (userLevel * 100);
-    const progress = totalPoints - currentThreshold;
-    const required = nextThreshold - currentThreshold;
-    
-    return {
-      current: progress,
-      required: required,
-      percentage: Math.round((progress / required) * 100)
-    };
-  }, [userLevel, totalPoints]);
-  
   const value = {
     // State
     currentExercise,
@@ -427,11 +324,8 @@ export const AppProvider = ({ children }) => {
     processQueryResults,
     togglePracticeMode,
     getNextExercise,
-    saveQuery,
-    loadSavedQuery,
     resetProgress,
     completeTutorial,
-    getExperienceProgress,
     setExecutionHistory,
   };
   

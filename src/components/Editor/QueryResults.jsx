@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen } from 'lucide-react';
+import { Table } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import styles from './Editor.module.css';
 
@@ -12,7 +12,7 @@ const QueryResults = () => {
     <div className={styles.results}>
       <div className={styles.resultsHeader}>
         <h4 className={styles.resultsTitle}>
-          <BookOpen size={18} />
+          <Table size={16} />
           Query Results
         </h4>
         <span className={styles.rowCount}>

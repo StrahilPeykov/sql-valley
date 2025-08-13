@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, Lightbulb, Award, BookOpen } from 'lucide-react';
+import { BookOpen, Lightbulb } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import styles from './Exercise.module.css';
 
@@ -9,53 +9,47 @@ const ExercisePanel = () => {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <Target className={styles.icon} />
-        <h3>Current Challenge</h3>
+        <h3 className={styles.title}>
+          Exercise {currentExercise.id}: {currentExercise.title}
+        </h3>
+        <div className={styles.metadata}>
+          <span className={styles.difficulty}>{currentExercise.difficulty}</span>
+          <span className={styles.points}>{currentExercise.points} points</span>
+        </div>
       </div>
       
       <div className={styles.content}>
-        <div className={styles.title}>
-          <h4>{currentExercise.title}</h4>
-          <span className={`${styles.badge} ${styles[currentExercise.difficulty.toLowerCase()]}`}>
-            {currentExercise.difficulty}
-          </span>
-        </div>
-        
-        <div className={styles.points}>
-          <Award size={16} />
-          <span>{currentExercise.points} points</span>
-        </div>
-        
         <p className={styles.description}>
           {currentExercise.description}
         </p>
         
-        {currentExercise.theory && (
-          <details className={styles.theory}>
-            <summary>
-              <BookOpen size={16} />
-              Learn More
-            </summary>
-            <div className={styles.theoryContent}>
-              {currentExercise.theory}
-            </div>
-          </details>
-        )}
-        
-        {!showHint && (
-          <button
-            onClick={() => setShowHint(true)}
-            className={styles.hintButton}
-          >
-            <Lightbulb size={16} />
-            Show Hint
-          </button>
-        )}
+        <div className={styles.actions}>
+          {currentExercise.theory && (
+            <details className={styles.theory}>
+              <summary>
+                <BookOpen size={16} />
+                View Theory
+              </summary>
+              <div className={styles.theoryContent}>
+                <pre>{currentExercise.theory}</pre>
+              </div>
+            </details>
+          )}
+          
+          {!showHint && (
+            <button
+              onClick={() => setShowHint(true)}
+              className={styles.hintButton}
+            >
+              <Lightbulb size={16} />
+              Show Hint
+            </button>
+          )}
+        </div>
         
         {showHint && (
           <div className={styles.hint}>
-            <strong>💡 Hint:</strong>
-            <p>{currentExercise.hint}</p>
+            <strong>Hint:</strong> {currentExercise.hint}
           </div>
         )}
       </div>

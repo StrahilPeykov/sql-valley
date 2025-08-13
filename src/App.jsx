@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppProvider, useApp } from './contexts/AppContext';
 import { useSQL } from './hooks/useSQL';
-import { calculateScore, generateDetailedFeedback } from './data/exercises';
 import Header from './components/Layout/Header';
 import SkillTree from './components/SkillTree/SkillTree';
 import SQLEditor from './components/Editor/SQLEditor';
@@ -9,7 +8,6 @@ import QueryResults from './components/Editor/QueryResults';
 import ExercisePanel from './components/Exercise/ExercisePanel';
 import FeedbackPanel from './components/Feedback/FeedbackPanel';
 import SchemaReference from './components/Exercise/SchemaReference';
-import AchievementPanel from './components/Achievements/AchievementPanel';
 import Tutorial from './components/Tutorial/Tutorial';
 import LoadingScreen from './components/UI/LoadingScreen';
 import Confetti from './components/UI/Confetti';
@@ -29,12 +27,10 @@ const AppContent = () => {
     practiceMode,
     showTutorial,
     completeTutorial,
-    resetProgress,
     resetCurrentExercise
   } = useApp();
   
   const { isReady, isLoading, error, executeQuery, parseResults } = useSQL();
-  const [showAchievements, setShowAchievements] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [executionStartTime, setExecutionStartTime] = useState(null);
   
@@ -53,7 +49,6 @@ const AppContent = () => {
     setExecutionStartTime(Date.now());
     
     try {
-      // Execute the query
       const result = executeQuery(userCode);
       const executionTime = Date.now() - executionStartTime;
       
@@ -78,7 +73,6 @@ const AppContent = () => {
         } else {
           setQueryResult(parsedResults);
           
-          // Process test results for educational feedback
           if (currentExercise.testCases) {
             const feedback = processQueryResults(
               currentExercise,
@@ -89,19 +83,15 @@ const AppContent = () => {
             setFeedback(feedback);
             
             if (feedback.score === 100 && !practiceMode) {
-              // Perfect score!
               setShowConfetti(true);
               setTimeout(() => setShowConfetti(false), 5000);
               
-              // Calculate bonus points
               let bonusPoints = 0;
               if (feedback.achievements) {
                 bonusPoints = feedback.achievements.reduce((sum, a) => sum + a.points, 0);
               }
               
               completeExercise(currentExercise.id, currentExercise.points, bonusPoints);
-              
-              // Update streak
               setStreak(prev => prev + 1);
             } else if (feedback.score < 100) {
               setStreak(0);
@@ -146,35 +136,10 @@ const AppContent = () => {
     return suggestions;
   };
   
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyPress = (e) => {
-      // Ctrl/Cmd + K: Toggle achievements
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setShowAchievements(prev => !prev);
-      }
-      
-      // Ctrl/Cmd + R: Reset current exercise (when not in input)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'r' && 
-          !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-        e.preventDefault();
-        if (window.confirm('Reset current exercise?')) {
-          resetCurrentExercise();
-        }
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [resetCurrentExercise]);
-  
-  // Show loading screen while initializing
   if (isLoading) {
     return <LoadingScreen />;
   }
   
-  // Show error if database failed to load
   if (error) {
     return (
       <div className={styles.errorContainer}>
@@ -187,7 +152,6 @@ const AppContent = () => {
     );
   }
   
-  // Show tutorial for first-time users
   if (showTutorial) {
     return <Tutorial onComplete={completeTutorial} />;
   }
@@ -198,42 +162,18 @@ const AppContent = () => {
       
       <Header />
       
-      <div className={styles.mainContent}>
-        <div className={styles.leftPanel}>
+      <div className={styles.mainLayout}>
+        <div className={styles.sidebar}>
           <SkillTree />
-          <ExercisePanel />
+          <SchemaReference />
         </div>
         
-        <div className={styles.rightPanel}>
+        <div className={styles.mainContent}>
+          <ExercisePanel />
           <SQLEditor onExecute={handleExecute} />
           <FeedbackPanel />
           <QueryResults />
         </div>
-      </div>
-      
-      <SchemaReference />
-      
-      <AchievementPanel 
-        isOpen={showAchievements}
-        onClose={() => setShowAchievements(false)}
-      />
-      
-      {/* Quick Actions Bar */}
-      <div className={styles.quickActions}>
-        <button 
-          className={styles.quickAction}
-          onClick={() => setShowAchievements(true)}
-          title="Achievements (Ctrl+K)"
-        >
-          🏆
-        </button>
-        <button 
-          className={styles.quickAction}
-          onClick={() => window.open('https://www.w3schools.com/sql/', '_blank')}
-          title="SQL Reference"
-        >
-          📚
-        </button>
       </div>
     </div>
   );

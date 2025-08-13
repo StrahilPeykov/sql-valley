@@ -1,394 +1,172 @@
-/* Updated SkillTree.module.css - Fix for category styling issues */
-
 .container {
-  background: linear-gradient(135deg, rgba(1, 26, 39, 0.9) 0%, rgba(1, 42, 74, 0.8) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 2px solid rgba(199, 33, 37, 0.3);
-  border-radius: 20px;
-  padding: 24px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.3),
-    0 0 60px rgba(199, 33, 37, 0.1);
-  position: relative;
-  overflow: hidden;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Category - Enhanced styling */
-.category {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  margin-bottom: 12px;
-  /* Ensure the custom property is inherited properly */
-  --category-color: #4A90E2; /* fallback color */
-}
-
-.category:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--category-color, rgba(199, 33, 37, 0.3));
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Enhanced category header */
-.categoryHeader {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  width: 100%;
-  text-align: left;
-  color: inherit;
-  /* Use CSS custom property with fallback */
-  border-left: 4px solid var(--category-color, #4A90E2);
-}
-
-.categoryHeader:hover {
-  background: rgba(0, 0, 0, 0.4);
-}
-
-/* Fix for category icon */
-.categoryIcon {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: var(--category-color, #4A90E2);
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-.categoryHeader:hover .categoryIcon {
-  background: rgba(255, 255, 255, 0.15);
-  transform: scale(1.05);
-}
-
-/* Category info styling */
-.categoryInfo {
-  flex: 1;
-  min-width: 0; /* Prevent overflow */
-}
-
-.categoryInfo h3 {
-  margin: 0 0 4px 0;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.categoryDesc {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-/* Enhanced progress ring */
-.categoryProgress {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.progressRing {
-  width: 40px;
-  height: 40px;
-  position: relative;
-}
-
-.progressRing svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.progressRingBg {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.15);
-  stroke-width: 3;
-}
-
-.progressRingFill {
-  fill: none;
-  stroke: var(--category-color, #4A90E2);
-  stroke-width: 3;
-  stroke-linecap: round;
-  transition: stroke-dasharray 0.5s ease;
-  filter: drop-shadow(0 0 5px var(--category-color, #4A90E2));
-}
-
-.progressText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-/* Expand icon */
-.expandIcon {
-  color: rgba(255, 255, 255, 0.6);
-  transition: transform 0.3s ease;
-  flex-shrink: 0;
-}
-
-.expandIcon.expanded {
-  transform: rotate(90deg);
-  color: var(--category-color, #4A90E2);
-}
-
-/* Skill list improvements */
-.skillList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.3s ease;
-}
-
-/* Enhanced skill card */
-.skillCard {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.skillCard:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateX(4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-/* Skill states - enhanced */
-.completed {
-  border-color: #4ade80;
-  background: rgba(74, 222, 128, 0.15);
-}
-
-.current {
-  border-color: #fbbf24;
-  background: rgba(251, 191, 36, 0.15);
-  animation: currentPulse 2s ease-in-out infinite;
-}
-
-.available {
-  border-color: #60a5fa;
-  background: rgba(96, 165, 250, 0.1);
-}
-
-.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.locked:hover {
-  transform: none;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes currentPulse {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
-  }
-}
-
-/* Enhanced Practice Mode Button Styles for SkillTree.module.css */
-
-/* Practice Mode Button - Enhanced styling */
-.practiceModeButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
-  border: 2px solid rgba(251, 191, 36, 0.4);
-  color: #fbbf24;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  min-width: 140px;
-  justify-content: center;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
-}
-
-.practiceModeButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, 
-    transparent,
-    rgba(251, 191, 36, 0.3),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-.practiceModeButton:hover::before {
-  left: 100%;
-}
-
-.practiceModeButton:hover {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(245, 158, 11, 0.25) 100%);
-  border-color: rgba(251, 191, 36, 0.6);
-  transform: translateY(-2px);
-  box-shadow: 
-    0 4px 16px rgba(251, 191, 36, 0.3),
-    0 0 20px rgba(251, 191, 36, 0.2);
-  color: #fcd34d;
-}
-
-.practiceModeButton.active {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.4) 0%, rgba(245, 158, 11, 0.4) 100%);
-  border-color: #fbbf24;
-  color: #fef3c7;
-  box-shadow: 
-    0 0 24px rgba(251, 191, 36, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  animation: practiceGlow 2s ease-in-out infinite;
-}
-
-.practiceModeButton.active::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
-  border-radius: 10px;
-  animation: practiceInnerGlow 3s ease-in-out infinite;
-}
-
-.practiceModeButton:active {
-  transform: translateY(0);
-  box-shadow: 
-    0 2px 8px rgba(251, 191, 36, 0.3),
-    inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.practiceModeButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.practiceModeButton:disabled:hover {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
-  border-color: rgba(251, 191, 36, 0.4);
-  transform: none;
-  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
-}
-
-/* Practice Mode Animations */
-@keyframes practiceGlow {
-  0%, 100% {
-    box-shadow: 
-      0 0 24px rgba(251, 191, 36, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-  50% {
-    box-shadow: 
-      0 0 32px rgba(251, 191, 36, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-}
-
-@keyframes practiceInnerGlow {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.05);
-  }
-}
-
-/* Header improvements for better alignment */
 .header {
-  margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.practiceToggle {
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #dee2e6;
+  color: #666;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.practiceToggle:hover {
+  border-color: var(--tue-red);
+  color: var(--tue-red);
+}
+
+.practiceToggle.active {
+  background: var(--tue-red);
+  border-color: var(--tue-red);
+  color: white;
+}
+
+.exerciseList {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-.titleSection {
+.category {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 200px;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Responsive adjustments */
+.categoryTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #666;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.exercise {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.exercise:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: var(--tue-red);
+}
+
+.exercise:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exerciseIcon {
+  display: flex;
+  align-items: center;
+  color: #adb5bd;
+  flex-shrink: 0;
+}
+
+.exerciseInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.exerciseTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exercisePoints {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.currentIndicator {
+  color: var(--tue-red);
+  flex-shrink: 0;
+}
+
+/* Exercise states */
+.completed {
+  background: #f0f9ff;
+  border-color: #22c55e;
+}
+
+.completed .exerciseIcon {
+  color: #22c55e;
+}
+
+.current {
+  background: #fef3c7;
+  border-color: var(--tue-red);
+}
+
+.current .exerciseIcon {
+  color: var(--tue-red);
+}
+
+.available .exerciseIcon {
+  color: #60a5fa;
+}
+
+.locked {
+  background: #f8f9fa;
+}
+
+.locked .exerciseIcon {
+  color: #adb5bd;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+  .container {
+    padding: 12px;
   }
   
-  .titleSection {
-    justify-content: center;
-    text-align: center;
-  }
-  
-  .practiceModeButton {
-    width: 100%;
-    min-width: auto;
-    padding: 12px 16px;
+  .exercise {
+    padding: 8px;
   }
 }

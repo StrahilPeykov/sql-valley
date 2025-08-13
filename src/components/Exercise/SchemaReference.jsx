@@ -9,18 +9,18 @@ const SchemaReference = () => {
     {
       name: 'employees',
       columns: [
-        'id (INTEGER, PK)',
+        'id (INTEGER)',
         'name (TEXT)',
         'department (TEXT)',
         'salary (INTEGER)',
         'hire_date (DATE)',
-        'manager_id (INTEGER, FK)'
+        'manager_id (INTEGER)'
       ]
     },
     {
       name: 'departments',
       columns: [
-        'id (INTEGER, PK)',
+        'id (INTEGER)',
         'name (TEXT)',
         'budget (INTEGER)',
         'location (TEXT)'
@@ -29,9 +29,9 @@ const SchemaReference = () => {
     {
       name: 'projects',
       columns: [
-        'id (INTEGER, PK)',
+        'id (INTEGER)',
         'name (TEXT)',
-        'department_id (INTEGER, FK)',
+        'department_id (INTEGER)',
         'budget (INTEGER)',
         'status (TEXT)',
         'start_date (DATE)',
@@ -46,17 +46,16 @@ const SchemaReference = () => {
         onClick={() => setIsExpanded(!isExpanded)}
         className={styles.schemaHeader}
         aria-expanded={isExpanded}
-        aria-controls="schema-content"
       >
         <div className={styles.schemaTitle}>
-          <Database size={20} />
-          <h3>Database Schema Reference</h3>
+          <Database size={16} />
+          <h3>Database Schema</h3>
         </div>
-        {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </button>
       
       {isExpanded && (
-        <div id="schema-content" className={styles.schemaContent}>
+        <div className={styles.schemaContent}>
           <div className={styles.schemaGrid}>
             {tables.map((table) => (
               <div key={table.name} className={styles.table}>
