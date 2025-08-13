@@ -111,16 +111,32 @@ export const AppProvider = ({ children }) => {
   // Get current exercise
   const currentExercise = exercises.find(ex => ex.id === currentExerciseId) || exercises[0];
   
+  // Initialize exercise code when exercise changes
+  useEffect(() => {
+    if (currentExercise) {
+      // Only set initial code if userCode is empty or this is a new exercise
+      if (!userCode || userCode === '' || userCode.trim() === '') {
+        setUserCode(currentExercise.initialCode || '-- Write your SQL query here\n\n');
+      }
+      setFeedback(null);
+      setQueryResult(null);
+      setShowHint(false);
+      setHintsUsed(0);
+    }
+  }, [currentExerciseId]);
+  
+  // Initialize on first load
+  useEffect(() => {
+    if (currentExercise && (!userCode || userCode.trim() === '')) {
+      setUserCode(currentExercise.initialCode || '-- Write your SQL query here\n\n');
+    }
+  }, [currentExercise]);
+  
   // Select exercise
   const selectExercise = useCallback((exerciseId) => {
     const exercise = exercises.find(ex => ex.id === exerciseId);
     if (exercise) {
       setCurrentExerciseId(exerciseId);
-      setUserCode(exercise.initialCode);
-      setFeedback(null);
-      setQueryResult(null);
-      setShowHint(false);
-      setHintsUsed(0);
       
       // Track attempt
       setExerciseAttempts(prev => ({
@@ -194,19 +210,21 @@ export const AppProvider = ({ children }) => {
   
   // Reset current exercise
   const resetCurrentExercise = useCallback(() => {
-    setUserCode(currentExercise.initialCode);
+    if (currentExercise && currentExercise.initialCode) {
+      setUserCode(currentExercise.initialCode);
+    }
     setFeedback(null);
     setQueryResult(null);
     setShowHint(false);
     setHintsUsed(0);
   }, [currentExercise]);
   
-  // Use hint
-  const useHint = useCallback((level = 1) => {
+  // Use hint - Fixed to work with the updated ExercisePanel
+  const useHint = useCallback(() => {
     const exercise = currentExercise;
-    if (exercise && exercise.hints && level <= exercise.hints.length) {
+    if (exercise && exercise.hints && hintsUsed < exercise.hints.length) {
+      setHintsUsed(prev => prev + 1);
       setShowHint(true);
-      setHintsUsed(level);
       
       // Update statistics
       setStatistics(prev => ({
@@ -214,7 +232,16 @@ export const AppProvider = ({ children }) => {
         hintsUsedTotal: prev.hintsUsedTotal + 1
       }));
     }
-  }, [currentExercise]);
+  }, [currentExercise, hintsUsed]);
+  
+  // Override setShowHint to use the hint when showing
+  const setShowHintOverride = useCallback((show) => {
+    if (show && hintsUsed === 0) {
+      useHint();
+    } else {
+      setShowHint(show);
+    }
+  }, [useHint, hintsUsed]);
   
   // Toggle practice mode
   const togglePracticeMode = useCallback(() => {
@@ -314,7 +341,7 @@ export const AppProvider = ({ children }) => {
     completeExercise,
     resetCurrentExercise,
     isExerciseUnlocked,
-    setShowHint,
+    setShowHint: setShowHintOverride,
     useHint,
     setFeedback,
     setQueryResult,

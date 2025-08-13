@@ -40,7 +40,7 @@ export const exercises = [
       }
     ],
     
-    initialCode: "-- Write your SQL query here\n-- Retrieve all employees from Engineering department\n\nSELECT * FROM employees",
+    initialCode: "-- Retrieve all employees from Engineering department\n-- Try: SELECT * FROM employees WHERE department = 'Engineering'\n\nSELECT * FROM employees",
     solution: "SELECT * FROM employees WHERE department = 'Engineering'",
     alternativeSolutions: [
       "SELECT * FROM employees WHERE department='Engineering'",
@@ -128,7 +128,7 @@ export const exercises = [
       { level: 3, text: "SELECT * FROM employees WHERE salary > 80000 ORDER BY salary DESC", penalty: 5 }
     ],
     
-    initialCode: "-- Find high-earning employees\n-- Filter by salary > 80000\n-- Sort by salary (highest first)\n\nSELECT * FROM employees",
+    initialCode: "-- Find high-earning employees\n-- Filter by salary > 80000 and sort by salary (highest first)\n\nSELECT * FROM employees\nWHERE ",
     solution: "SELECT * FROM employees WHERE salary > 80000 ORDER BY salary DESC",
     
     testCases: [
@@ -211,7 +211,7 @@ export const exercises = [
       { level: 3, text: "SELECT department, AVG(salary) as avg_salary FROM employees GROUP BY department ORDER BY avg_salary DESC", penalty: 5 }
     ],
     
-    initialCode: "-- Calculate average salary by department\n-- Group by department\n-- Order by average salary (highest first)\n\nSELECT department, AVG(salary) as avg_salary\nFROM employees",
+    initialCode: "-- Calculate average salary by department\n-- Group by department and order by average salary (highest first)\n\nSELECT department, AVG(salary) as avg_salary\nFROM employees\n",
     solution: "SELECT department, AVG(salary) as avg_salary FROM employees GROUP BY department ORDER BY avg_salary DESC",
     
     testCases: [
@@ -304,7 +304,7 @@ export const exercises = [
       { level: 3, text: "Add WHERE p.status = 'Active' to filter", penalty: 5 }
     ],
     
-    initialCode: "-- Join projects with departments\n-- Show: project name, department name, location, budget\n-- Only show active projects\n\nSELECT p.name, d.name, d.location, p.budget\nFROM projects p",
+    initialCode: "-- Join projects with departments to show active projects\n-- Show: project name, department name, location, budget\n\nSELECT p.name, d.name, d.location, p.budget\nFROM projects p\nJOIN departments d ON ",
     solution: "SELECT p.name as project_name, d.name as dept_name, d.location, p.budget FROM projects p JOIN departments d ON p.department_id = d.id WHERE p.status = 'Active'",
     
     testCases: [
@@ -386,7 +386,7 @@ export const exercises = [
       { level: 3, text: "Full solution uses correlated subquery with AVG", penalty: 6 }
     ],
     
-    initialCode: "-- Find employees earning above their department average\n-- Use a subquery to calculate department averages\n\nSELECT name, department, salary\nFROM employees e1\nWHERE salary > (",
+    initialCode: "-- Find employees earning above their department average\n-- Use a correlated subquery to calculate department averages\n\nSELECT name, department, salary\nFROM employees e1\nWHERE salary > (\n  SELECT AVG(salary)\n  FROM employees e2\n  WHERE ",
     solution: `SELECT name, department, salary 
 FROM employees e1 
 WHERE salary > (
@@ -468,7 +468,7 @@ WHERE salary > (
       { level: 3, text: "Include COUNT(*) for employee count and SUM(salary) for total", penalty: 6 }
     ],
     
-    initialCode: "-- Find departments with high salary budgets\n-- Show: department, employee count, total salary\n-- Only departments with total > 150000\n\nSELECT department, COUNT(*) as emp_count",
+    initialCode: "-- Find departments with high salary budgets\n-- Show: department, employee count, total salary\n-- Only departments with total > 150000\n\nSELECT department, COUNT(*) as emp_count, SUM(salary) as total_salary\nFROM employees\nGROUP BY department\n",
     solution: `SELECT department, COUNT(*) as emp_count, SUM(salary) as total_salary
 FROM employees
 GROUP BY department
@@ -554,7 +554,7 @@ ORDER BY total_salary DESC`,
       { level: 3, text: "Combine the JOIN with a correlated subquery for project count", penalty: 7 }
     ],
     
-    initialCode: "-- Find employees with department budget and project count\n-- Show: name, department, dept_budget, project_count\n\nSELECT e.name, e.department",
+    initialCode: "-- Find employees with department budget and project count\n-- Show: name, department, dept_budget, project_count\n\nSELECT \n  e.name, \n  e.department, \n  d.budget as dept_budget,\n  (SELECT COUNT(*) FROM projects p WHERE p.department_id = d.id) as project_count\nFROM employees e\nJOIN departments d ON ",
     solution: `SELECT 
   e.name, 
   e.department, 

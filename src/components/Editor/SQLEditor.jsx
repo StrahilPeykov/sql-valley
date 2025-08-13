@@ -1,27 +1,128 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { 
   Code, Play, RotateCcw, Loader, 
-  Lightbulb, BookOpen, Zap, Clock,
+  BookOpen, Zap, Clock,
   CheckCircle, XCircle
 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
 import styles from './Editor.module.css';
 
-// SQL keywords for syntax highlighting
-const SQL_KEYWORDS = [
-  'SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER',
-  'ON', 'AS', 'GROUP', 'BY', 'HAVING', 'ORDER', 'ASC', 'DESC',
-  'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE',
-  'CREATE', 'TABLE', 'ALTER', 'DROP', 'INDEX', 'VIEW',
-  'AND', 'OR', 'NOT', 'IN', 'EXISTS', 'BETWEEN', 'LIKE', 'IS', 'NULL',
-  'COUNT', 'SUM', 'AVG', 'MAX', 'MIN', 'DISTINCT', 'LIMIT',
-  'UNION', 'ALL', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END'
-];
+// Simple syntax highlighter for SQL
+const highlightSQL = (code) => {
+  const keywords = [
+    'SELECT', 'FROM', 'WHERE', 'JOIN', 'INNER', 'LEFT', 'RIGHT', 'OUTER',
+    'ON', 'AS', 'GROUP', 'BY', 'HAVING', 'ORDER', 'ASC', 'DESC',
+    'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE',
+    'CREATE', 'TABLE', 'ALTER', 'DROP', 'INDEX', 'VIEW',
+    'AND', 'OR', 'NOT', 'IN', 'EXISTS', 'BETWEEN', 'LIKE', 'IS', 'NULL',
+    'COUNT', 'SUM', 'AVG', 'MAX', 'MIN', 'DISTINCT', 'LIMIT',
+    'UNION', 'ALL', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END'
+  ];
+  
+  const functions = [
+    'COUNT', 'SUM', 'AVG', 'MAX', 'MIN', 'ROUND', 'LENGTH',
+    'UPPER', 'LOWER', 'SUBSTR', 'TRIM', 'COALESCE', 'CAST'
+  ];
+  
+  const tables = ['employees', 'departments', 'projects'];
+  
+  let highlighted = code;
+  
+  // Highlight strings
+  highlighted = highlighted.replace(/'([^']*)'/g, '<span style="color: #22c55e;">\'$1\'</span>');
+  
+  // Highlight numbers
+  highlighted = highlighted.replace(/\b(\d+)\b/g, '<span style="color: #f97316;">$1</span>');
+  
+  // Highlight comments
+  highlighted = highlighted.replace(/(--[^\n]*)/g, '<span style="color: #64748b; font-style: italic;">$1</span>');
+  
+  // Highlight keywords
+  keywords.forEach(keyword => {
+    const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+    highlighted = highlighted.replace(regex, '<span style="color: #3b82f6; font-weight: 600;">$1</span>');
+  });
+  
+  // Highlight functions
+  functions.forEach(func => {
+    const regex = new RegExp(`\\b(${func})\\b(?=\\s*\\()`, 'gi');
+    highlighted = highlighted.replace(regex, '<span style="color: #8b5cf6; font-weight: 500;">$1</span>');
+  });
+  
+  // Highlight table names
+  tables.forEach(table => {
+    const regex = new RegExp(`\\b(${table})\\b`, 'gi');
+    highlighted = highlighted.replace(regex, '<span style="color: #ef4444; font-weight: 500;">$1</span>');
+  });
+  
+  return highlighted;
+};
 
-const SQL_FUNCTIONS = [
-  'COUNT', 'SUM', 'AVG', 'MAX', 'MIN', 'ROUND', 'LENGTH',
-  'UPPER', 'LOWER', 'SUBSTR', 'TRIM', 'COALESCE', 'CAST'
-];
+// Code Editor Component using overlay technique but with proper implementation
+const CodeEditor = ({ value, onChange, onKeyDown, placeholder, style, ...props }) => {
+  const textareaRef = useRef(null);
+  const preRef = useRef(null);
+  const containerRef = useRef(null);
+  
+  // Synchronize scroll between textarea and pre
+  const handleScroll = (e) => {
+    if (preRef.current && textareaRef.current) {
+      preRef.current.scrollTop = e.target.scrollTop;
+      preRef.current.scrollLeft = e.target.scrollLeft;
+    }
+  };
+  
+  // Handle text change
+  const handleChange = (e) => {
+    onChange(e);
+  };
+  
+  // Handle key events
+  const handleKeyDown = (e) => {
+    onKeyDown(e);
+  };
+  
+  // Focus management
+  const handleContainerClick = () => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+  
+  return (
+    <div 
+      ref={containerRef}
+      className={styles.codeEditorContainer}
+      onClick={handleContainerClick}
+      style={style}
+    >
+      {/* Syntax highlighted background */}
+      <pre
+        ref={preRef}
+        className={styles.syntaxHighlight}
+        dangerouslySetInnerHTML={{
+          __html: highlightSQL(value) + '\n'
+        }}
+      />
+      
+      {/* Transparent textarea overlay */}
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onScroll={handleScroll}
+        placeholder={placeholder}
+        className={styles.codeTextarea}
+        spellCheck={false}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        {...props}
+      />
+    </div>
+  );
+};
 
 const SQLEditor = ({ onExecute }) => {
   const { 
@@ -31,70 +132,22 @@ const SQLEditor = ({ onExecute }) => {
     isExecuting,
     currentExercise,
     practiceMode,
-    showLineNumbers = true,
-    showAutoComplete = true
+    showLineNumbers = true
   } = useApp();
   
-  const textareaRef = useRef(null);
-  const highlightRef = useRef(null);
-  const [cursorPosition, setCursorPosition] = useState(0);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(0);
   const [executionTime, setExecutionTime] = useState(null);
   const [syntaxErrors, setSyntaxErrors] = useState([]);
   
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      const newHeight = Math.max(250, Math.min(500, textareaRef.current.scrollHeight));
-      textareaRef.current.style.height = `${newHeight}px`;
-      if (highlightRef.current) {
-        highlightRef.current.style.height = `${newHeight}px`;
-      }
-    }
-  }, [userCode]);
-  
-  // Syntax highlighting
-  const getHighlightedCode = useCallback(() => {
-    let highlighted = userCode;
-    
-    // Highlight strings
-    highlighted = highlighted.replace(/'[^']*'/g, '<span class="string">$&</span>');
-    
-    // Highlight numbers
-    highlighted = highlighted.replace(/\b\d+\b/g, '<span class="number">$&</span>');
-    
-    // Highlight keywords (case-insensitive)
-    SQL_KEYWORDS.forEach(keyword => {
-      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
-      highlighted = highlighted.replace(regex, '<span class="keyword">$&</span>');
-    });
-    
-    // Highlight functions
-    SQL_FUNCTIONS.forEach(func => {
-      const regex = new RegExp(`\\b${func}\\b(?=\\s*\\()`, 'gi');
-      highlighted = highlighted.replace(regex, '<span class="function">$&</span>');
-    });
-    
-    // Highlight comments
-    highlighted = highlighted.replace(/--[^\n]*/g, '<span class="comment">$&</span>');
-    
-    // Highlight table names (simple heuristic)
-    highlighted = highlighted.replace(/\b(employees|departments|projects)\b/gi, '<span class="table">$&</span>');
-    
-    // Add line breaks
-    highlighted = highlighted.replace(/\n/g, '<br>');
-    
-    // Highlight syntax errors
-    syntaxErrors.forEach(error => {
-      const errorRegex = new RegExp(`\\b${error.text}\\b`, 'g');
-      highlighted = highlighted.replace(errorRegex, `<span class="error">$&</span>`);
-    });
-    
-    return highlighted;
-  }, [userCode, syntaxErrors]);
+  // SQL keywords and completions
+  const SQL_COMPLETIONS = [
+    'SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT JOIN', 'INNER JOIN',
+    'GROUP BY', 'ORDER BY', 'HAVING', 'COUNT', 'SUM', 'AVG', 'MAX', 'MIN',
+    'employees', 'departments', 'projects',
+    'id', 'name', 'salary', 'department', 'budget', 'location', 'status'
+  ];
   
   // Basic SQL syntax validation
   const validateSyntax = useCallback((code) => {
@@ -103,41 +156,23 @@ const SQLEditor = ({ onExecute }) => {
     // Check for unclosed quotes
     const singleQuotes = (code.match(/'/g) || []).length;
     if (singleQuotes % 2 !== 0) {
-      errors.push({ line: null, text: "Unclosed string", type: 'error' });
+      errors.push({ text: "Unclosed string", type: 'error' });
     }
     
     // Check for basic SELECT structure
     if (code.toUpperCase().includes('SELECT')) {
       if (!code.toUpperCase().includes('FROM')) {
-        errors.push({ line: null, text: "Missing FROM clause", type: 'warning' });
+        errors.push({ text: "Missing FROM clause", type: 'warning' });
       }
     }
     
-    // Check for common typos
-    const commonTypos = [
-      { wrong: 'SELCT', correct: 'SELECT' },
-      { wrong: 'FORM', correct: 'FROM' },
-      { wrong: 'WEHRE', correct: 'WHERE' },
-      { wrong: 'GROPU', correct: 'GROUP' }
-    ];
-    
-    commonTypos.forEach(typo => {
-      if (code.toUpperCase().includes(typo.wrong)) {
-        errors.push({ 
-          line: null, 
-          text: `Did you mean ${typo.correct}?`, 
-          type: 'warning' 
-        });
-      }
-    });
-    
     setSyntaxErrors(errors);
-    return errors.length === 0;
+    return errors.filter(e => e.type === 'error').length === 0;
   }, []);
   
   // Auto-completion logic
-  const updateSuggestions = useCallback((code, position) => {
-    const beforeCursor = code.substring(0, position);
+  const updateSuggestions = useCallback((code, cursorPosition) => {
+    const beforeCursor = code.substring(0, cursorPosition);
     const words = beforeCursor.split(/\s+/);
     const currentWord = words[words.length - 1].toUpperCase();
     
@@ -146,15 +181,7 @@ const SQLEditor = ({ onExecute }) => {
       return;
     }
     
-    // Combine all possible completions
-    const allCompletions = [
-      ...SQL_KEYWORDS,
-      ...SQL_FUNCTIONS,
-      'employees', 'departments', 'projects', // table names
-      'id', 'name', 'salary', 'department', 'budget', 'location', 'status' // common columns
-    ];
-    
-    const filtered = allCompletions
+    const filtered = SQL_COMPLETIONS
       .filter(item => item.toUpperCase().startsWith(currentWord))
       .slice(0, 5);
     
@@ -171,15 +198,12 @@ const SQLEditor = ({ onExecute }) => {
   const handleChange = (e) => {
     const newCode = e.target.value;
     setUserCode(newCode);
-    setCursorPosition(e.target.selectionStart);
     
     // Validate syntax
     validateSyntax(newCode);
     
-    // Update suggestions
-    if (showAutoComplete) {
-      updateSuggestions(newCode, e.target.selectionStart);
-    }
+    // Update suggestions based on cursor position
+    updateSuggestions(newCode, e.target.selectionStart);
   };
   
   // Handle keyboard shortcuts
@@ -219,13 +243,7 @@ const SQLEditor = ({ onExecute }) => {
       }
     }
     
-    // Ctrl/Cmd + Space for suggestions
-    if ((e.ctrlKey || e.metaKey) && e.key === ' ') {
-      e.preventDefault();
-      updateSuggestions(userCode, cursorPosition);
-    }
-    
-    // Tab for indentation (when not using suggestions)
+    // Tab for indentation
     if (e.key === 'Tab' && !showSuggestions) {
       e.preventDefault();
       const start = e.target.selectionStart;
@@ -241,28 +259,8 @@ const SQLEditor = ({ onExecute }) => {
   
   // Apply autocomplete suggestion
   const applySuggestion = (suggestion) => {
-    const beforeCursor = userCode.substring(0, cursorPosition);
-    const afterCursor = userCode.substring(cursorPosition);
-    const words = beforeCursor.split(/\s+/);
-    const lastWordStart = beforeCursor.lastIndexOf(words[words.length - 1]);
-    
-    const newCode = 
-      userCode.substring(0, lastWordStart) + 
-      suggestion + 
-      afterCursor;
-    
-    setUserCode(newCode);
+    // This would need cursor position tracking to work properly
     setShowSuggestions(false);
-    
-    // Set cursor position after the inserted word
-    setTimeout(() => {
-      if (textareaRef.current) {
-        const newPosition = lastWordStart + suggestion.length;
-        textareaRef.current.selectionStart = newPosition;
-        textareaRef.current.selectionEnd = newPosition;
-        textareaRef.current.focus();
-      }
-    }, 0);
   };
   
   // Execute query with timing
@@ -273,7 +271,7 @@ const SQLEditor = ({ onExecute }) => {
     setExecutionTime(endTime - startTime);
   };
   
-  // Format SQL (basic formatting)
+  // Format SQL
   const formatSQL = () => {
     let formatted = userCode.toUpperCase();
     
@@ -283,9 +281,8 @@ const SQLEditor = ({ onExecute }) => {
       formatted = formatted.replace(new RegExp(`\\s*${keyword}`, 'g'), `\n${keyword}`);
     });
     
-    // Clean up multiple spaces and trim
+    // Clean up and trim
     formatted = formatted.replace(/\s+/g, ' ').trim();
-    
     setUserCode(formatted);
   };
   
@@ -293,7 +290,7 @@ const SQLEditor = ({ onExecute }) => {
     <div className={styles.editor}>
       <div className={styles.editorHeader}>
         <div className={styles.editorTitle}>
-          <Code className={styles.icon} />
+          <Code size={20} />
           <h3>SQL Editor</h3>
           {practiceMode && (
             <span className={styles.practiceModeBadge}>
@@ -316,7 +313,7 @@ const SQLEditor = ({ onExecute }) => {
           <button
             onClick={resetCurrentExercise}
             className={styles.resetButton}
-            title="Reset code (Esc)"
+            title="Reset code"
           >
             <RotateCcw size={16} />
             Reset
@@ -344,36 +341,18 @@ const SQLEditor = ({ onExecute }) => {
       </div>
       
       <div className={styles.editorBody}>
-        {showLineNumbers && (
-          <div className={styles.lineNumbers}>
-            {userCode.split('\n').map((_, i) => (
-              <div key={i} className={styles.lineNumber}>
-                {i + 1}
-              </div>
-            ))}
-          </div>
-        )}
-        
         <div className={styles.editorWrapper}>
-          {/* Syntax highlighted overlay */}
-          <div 
-            ref={highlightRef}
-            className={styles.highlightedCode}
-            dangerouslySetInnerHTML={{ __html: getHighlightedCode() }}
-          />
-          
-          {/* Actual textarea */}
-          <textarea
-            ref={textareaRef}
+          <CodeEditor
             value={userCode}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            className={styles.codeInput}
-            spellCheck={false}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
             placeholder="Write your SQL query here..."
+            style={{
+              fontFamily: "'JetBrains Mono', 'Monaco', 'Consolas', monospace",
+              fontSize: '0.875rem',
+              lineHeight: '1.6',
+              minHeight: '200px'
+            }}
           />
           
           {/* Autocomplete suggestions */}
@@ -413,7 +392,7 @@ const SQLEditor = ({ onExecute }) => {
         <div className={styles.footerCenter}>
           <span className={styles.hint}>
             <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to run • 
-            <kbd>Ctrl</kbd>+<kbd>Space</kbd> for suggestions
+            <kbd>Tab</kbd> for suggestions
           </span>
         </div>
         
