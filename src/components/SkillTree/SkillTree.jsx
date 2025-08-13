@@ -1,3 +1,5 @@
+// Updated SkillTree.jsx - Fixed category rendering and styling
+
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { 
   Brain, Database, Filter, BarChart3, Link, Search, Award,
@@ -26,13 +28,13 @@ const SkillTree = () => {
   const [hoveredSkill, setHoveredSkill] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   
-  // Enhanced skill categories with positions for visual tree
+  // Enhanced skill categories with proper colors and structure
   const skillCategories = useMemo(() => [
     {
       id: 'fundamentals',
       title: "Fundamentals",
       description: "Master the basics of SQL",
-      color: "#4A90E2",
+      color: "#4A90E2", // Blue
       icon: Database,
       position: { x: 50, y: 20 },
       skills: [
@@ -54,7 +56,7 @@ const SkillTree = () => {
       title: "Data Analysis", 
       id: 'analysis',
       description: "Analyze and aggregate data",
-      color: "#F5A623",
+      color: "#F5A623", // Orange
       icon: BarChart3,
       position: { x: 50, y: 50 },
       skills: [
@@ -70,7 +72,7 @@ const SkillTree = () => {
       title: "Advanced Queries",
       id: 'advanced',
       description: "Complex queries and optimization",
-      color: "#BD10E0",
+      color: "#BD10E0", // Purple
       icon: Award,
       position: { x: 50, y: 70 },
       skills: [
@@ -102,72 +104,36 @@ const SkillTree = () => {
     }
   ], []);
   
-  // Draw connections between skills
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // Calculate category progress with proper error handling
+  const getCategoryProgress = (category) => {
+    const categorySkills = category.skills.map(s => s.id);
+    const completed = categorySkills.filter(id => completedExercises.includes(id));
+    const total = categorySkills.length;
+    const completedCount = completed.length;
     
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw connections
-    exercises.forEach(exercise => {
-      if (!exercise.prerequisites) return;
-      
-      exercise.prerequisites.forEach(prereqId => {
-        const fromExercise = exercises.find(e => e.id === prereqId);
-        const toExercise = exercise;
-        
-        if (!fromExercise || !toExercise) return;
-        
-        // Find positions (simplified - you'd calculate actual positions)
-        const fromSkill = skillCategories
-          .flatMap(cat => cat.skills)
-          .find(s => s.id === prereqId);
-        const toSkill = skillCategories
-          .flatMap(cat => cat.skills)
-          .find(s => s.id === exercise.id);
-        
-        if (!fromSkill || !toSkill) return;
-        
-        const fromX = (fromSkill.position.x / 100) * canvas.width;
-        const fromY = (fromSkill.position.y / 100) * canvas.height;
-        const toX = (toSkill.position.x / 100) * canvas.width;
-        const toY = (toSkill.position.y / 100) * canvas.height;
-        
-        // Draw line
-        ctx.beginPath();
-        ctx.moveTo(fromX, fromY);
-        ctx.lineTo(toX, toY);
-        
-        // Style based on completion
-        if (completedExercises.includes(prereqId) && completedExercises.includes(exercise.id)) {
-          ctx.strokeStyle = 'rgba(74, 222, 128, 0.5)';
-          ctx.lineWidth = 3;
-        } else if (completedExercises.includes(prereqId)) {
-          ctx.strokeStyle = 'rgba(199, 33, 37, 0.5)';
-          ctx.lineWidth = 2;
-          ctx.setLineDash([5, 5]);
-        } else {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-          ctx.lineWidth = 1;
-          ctx.setLineDash([2, 4]);
-        }
-        
-        ctx.stroke();
-        ctx.setLineDash([]);
-      });
-    });
-  }, [completedExercises, skillCategories]);
+    return {
+      completed: completedCount,
+      total: total,
+      percentage: total > 0 ? Math.round((completedCount / total) * 100) : 0
+    };
+  };
   
-  // Get exercise data for each skill
+  // Get exercise data for each skill with better error handling
   const getSkillData = (skillId) => {
     const exercise = exercises.find(ex => ex.id === skillId);
+    if (!exercise) {
+      console.warn(`Exercise with id ${skillId} not found`);
+      return {
+        id: skillId,
+        title: `Exercise ${skillId}`,
+        difficulty: 'Unknown',
+        points: 0,
+        isCompleted: false,
+        isUnlocked: false,
+        isCurrent: false
+      };
+    }
+    
     const isCompleted = completedExercises.includes(skillId);
     const isUnlocked = isExerciseUnlocked(skillId);
     const isCurrent = currentExerciseId === skillId;
@@ -197,17 +163,6 @@ const SkillTree = () => {
   const completedCount = completedExercises.length;
   const totalCount = exercises.length;
   const expProgress = getExperienceProgress();
-  
-  // Calculate category progress
-  const getCategoryProgress = (category) => {
-    const categorySkills = category.skills.map(s => s.id);
-    const completed = categorySkills.filter(id => completedExercises.includes(id));
-    return {
-      completed: completed.length,
-      total: categorySkills.length,
-      percentage: Math.round((completed.length / categorySkills.length) * 100)
-    };
-  };
   
   return (
     <div className={styles.container}>
@@ -252,30 +207,29 @@ const SkillTree = () => {
       
       {/* Skill Tree Visualization */}
       <div className={styles.treeContainer}>
-        <canvas 
-          ref={canvasRef} 
-          className={styles.connectionCanvas}
-        />
-        
         <div className={styles.skillGrid}>
           {skillCategories.map((category) => {
             const progress = getCategoryProgress(category);
             const isExpanded = selectedCategory === category.id;
+            const IconComponent = category.icon;
             
             return (
               <div 
                 key={category.id} 
                 className={styles.category}
-                style={{ '--category-color': category.color }}
+                style={{ 
+                  '--category-color': category.color 
+                }}
               >
                 <button
                   className={styles.categoryHeader}
                   onClick={() => setSelectedCategory(
                     isExpanded ? null : category.id
                   )}
+                  type="button"
                 >
                   <div className={styles.categoryIcon}>
-                    <category.icon size={24} />
+                    <IconComponent size={24} />
                   </div>
                   
                   <div className={styles.categoryInfo}>
@@ -326,13 +280,7 @@ const SkillTree = () => {
                           onClick={() => handleSkillClick(skill.id)}
                           onMouseEnter={() => setHoveredSkill(skill.id)}
                           onMouseLeave={() => setHoveredSkill(null)}
-                          style={{
-                            '--skill-x': `${skill.position.x}%`,
-                            '--skill-y': `${skill.position.y}%`
-                          }}
                         >
-                          <div className={styles.skillGlow}></div>
-                          
                           <div className={styles.skillIcon}>
                             {skillData.isCompleted ? (
                               <CheckCircle size={24} className={styles.completedIcon} />
@@ -373,7 +321,7 @@ const SkillTree = () => {
                           {isHovered && (
                             <div className={styles.tooltip}>
                               <h5>{skillData.title}</h5>
-                              <p>{skillData.shortDescription}</p>
+                              <p>{skillData.shortDescription || skillData.description}</p>
                               <div className={styles.tooltipMeta}>
                                 <span>{skillData.difficulty}</span>
                                 <span>•</span>
