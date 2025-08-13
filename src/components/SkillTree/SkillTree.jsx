@@ -18,7 +18,8 @@ const SkillTree = () => {
     userLevel,
     getExperienceProgress,
     practiceMode,
-    togglePracticeMode
+    togglePracticeMode,
+    progressPercentage  // ✅ Added this missing prop
   } = useApp();
   
   const canvasRef = useRef(null);
@@ -418,7 +419,7 @@ const SkillTree = () => {
         <div className={styles.summaryItem}>
           <Award className={styles.summaryIcon} />
           <div>
-            <span className={styles.summaryValue}>{Math.round(progressPercentage)}%</span>
+            <span className={styles.summaryValue}>{progressPercentage || 0}%</span>
             <span className={styles.summaryLabel}>Progress</span>
           </div>
         </div>
