@@ -341,17 +341,111 @@ const SQLEditor = ({ onExecute }) => {
   
   // Format SQL
   const formatSQL = () => {
-    let formatted = userCode.toUpperCase();
+    let code = userCode.trim();
     
-    // Add newlines before major keywords
-    const keywords = ['SELECT', 'FROM', 'WHERE', 'JOIN', 'GROUP BY', 'ORDER BY', 'HAVING'];
-    keywords.forEach(keyword => {
-      formatted = formatted.replace(new RegExp(`\\s*${keyword}`, 'g'), `\n${keyword}`);
+    // Don't format if empty
+    if (!code) return;
+    
+    // Split by lines and process each line separately
+    const lines = code.split('\n');
+    let sqlParts = [];
+    
+    // Extract SQL parts (non-comment parts) from each line
+    lines.forEach(line => {
+      const commentIndex = line.indexOf('--');
+      if (commentIndex === -1) {
+        // No comment, whole line is SQL
+        if (line.trim()) sqlParts.push(line.trim());
+      } else if (commentIndex === 0) {
+        // Whole line is comment, skip for SQL processing but keep for later
+        return;
+      } else {
+        // Line has both SQL and comment, extract SQL part
+        const sqlPart = line.substring(0, commentIndex).trim();
+        if (sqlPart) sqlParts.push(sqlPart);
+      }
     });
     
-    // Clean up and trim
+    // Join SQL parts and format them
+    let formatted = sqlParts.join(' ');
+    
+    // Normalize whitespace
     formatted = formatted.replace(/\s+/g, ' ').trim();
-    setUserCode(formatted);
+    
+    // Keywords that should start new lines
+    const majorKeywords = [
+      'SELECT', 'FROM', 'WHERE', 'JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN',
+      'GROUP BY', 'ORDER BY', 'HAVING', 'UNION', 'INSERT', 'UPDATE', 'DELETE'
+    ];
+    
+    // Keywords that should be uppercase but not create new lines
+    const minorKeywords = [
+      'AS', 'ON', 'AND', 'OR', 'NOT', 'IN', 'EXISTS', 'BETWEEN', 'LIKE', 'IS', 'NULL',
+      'COUNT', 'SUM', 'AVG', 'MAX', 'MIN', 'DISTINCT', 'DESC', 'ASC', 'LIMIT',
+      'CASE', 'WHEN', 'THEN', 'ELSE', 'END'
+    ];
+    
+    // Sort by length (longest first) to avoid partial replacements
+    const allKeywords = [...majorKeywords, ...minorKeywords].sort((a, b) => b.length - a.length);
+    
+    // Make keywords uppercase
+    allKeywords.forEach(keyword => {
+      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+      formatted = formatted.replace(regex, keyword.toUpperCase());
+    });
+    
+    // Add newlines before major keywords (but not at the start)
+    majorKeywords.forEach(keyword => {
+      const upperKeyword = keyword.toUpperCase();
+      formatted = formatted.replace(
+        new RegExp(`(.)\\s*\\b${upperKeyword}\\b`, 'g'), 
+        `$1\n${upperKeyword}`
+      );
+    });
+    
+    // Clean up: remove empty lines and trim each line
+    formatted = formatted
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n');
+    
+    // Now reconstruct with original comments
+    const formattedLines = formatted.split('\n');
+    const originalLines = code.split('\n');
+    let result = [];
+    let formattedIndex = 0;
+    
+    originalLines.forEach(originalLine => {
+      const commentIndex = originalLine.indexOf('--');
+      
+      if (commentIndex === 0) {
+        // Whole line is comment, keep as-is
+        result.push(originalLine);
+      } else if (commentIndex === -1) {
+        // No comment, use formatted version
+        if (originalLine.trim() && formattedIndex < formattedLines.length) {
+          result.push(formattedLines[formattedIndex]);
+          formattedIndex++;
+        }
+      } else {
+        // Line has both SQL and comment
+        const comment = originalLine.substring(commentIndex);
+        if (formattedIndex < formattedLines.length) {
+          // Use formatted SQL + original comment
+          result.push(formattedLines[formattedIndex] + ' ' + comment);
+          formattedIndex++;
+        }
+      }
+    });
+    
+    // If we have remaining formatted lines (edge case), add them
+    while (formattedIndex < formattedLines.length) {
+      result.push(formattedLines[formattedIndex]);
+      formattedIndex++;
+    }
+    
+    setUserCode(result.join('\n'));
   };
   
   return (
