@@ -102,7 +102,7 @@ const ExercisePanel = () => {
           {practiceMode && showSolution && (
             <div className={styles.solutionSection}>
               <div className={styles.solutionHeader}>
-                <h4>💡 Solution</h4>
+                <h4>Solution</h4>
                 <button
                   onClick={copySolutionToEditor}
                   className={styles.copySolutionBtn}
@@ -138,7 +138,7 @@ const ExercisePanel = () => {
               )}
               
               <div className={styles.solutionTip}>
-                <strong>💡 Learning Tip:</strong> Try to understand each part of the solution. 
+                <strong>Learning Tip:</strong> Try to understand each part of the solution. 
                 Experiment by modifying it to see how the results change!
               </div>
             </div>

@@ -118,7 +118,7 @@ export const initDatabase = async () => {
         (4, 'James Anderson', 'Wilhelminalaan 23', 'Eindhoven'),
         (5, 'Fatima Al-Rashid', 'Stratumseind 156', 'Eindhoven'),
         (6, 'Lucas Janssen', 'Markt 34', 'Utrecht'),
-        (7, 'Priya Sharma', 'Beukenlaan 89', 'Eindhoven'),
+        (7, 'Priya Sharma', 'Beukenlaan 89', 'Delft'),
         (8, 'Marco Rossi', 'Nieuwe Gracht 67', 'Delft');
       
       -- Insert stores (Dutch supermarket chains)
@@ -182,7 +182,7 @@ export const initDatabase = async () => {
       INSERT INTO inventory (sID, pID, date, quantity, unit_price) VALUES
         -- Albert Heijn Eindhoven
         (1, 1, '2024-08-10', 50, 3.99),
-        (1, 2, '2024-08-10', 30, 2.89),
+        (1, 2, '2024-08-10', 30, 2.49),
         (1, 5, '2024-08-10', 25, 4.49),
         (1, 6, '2024-08-10', 40, 1.59),
         (1, 8, '2024-08-10', 100, 1.35),
@@ -198,12 +198,23 @@ export const initDatabase = async () => {
         (2, 11, '2024-08-10', 45, 2.49),
         
         -- Albert Heijn Amsterdam
+        (3, 1, '2024-08-10', 35, 4.19),
+        (3, 2, '2024-08-10', 25, 2.89),
+        (3, 4, '2024-08-10', 40, 2.15),
+        (3, 8, '2024-08-10', 90, 1.39),
+        
+        -- PLUS Eindhoven
+        (4, 9, '2024-08-10', 60, 1.79),
+        (4, 10, '2024-08-10', 30, 1.89),
+        (4, 12, '2024-08-10', 20, 3.49),
+        
+        -- Additional inventory for other dates
         (3, 1, '2024-08-11', 35, 4.19),
         (3, 2, '2024-08-11', 25, 2.89),
         (3, 4, '2024-08-11', 40, 2.15),
         (3, 8, '2024-08-11', 90, 1.39),
         
-        -- PLUS Eindhoven
+        -- PLUS Eindhoven  
         (4, 9, '2024-08-12', 60, 1.79),
         (4, 10, '2024-08-12', 30, 1.89),
         (4, 12, '2024-08-12', 20, 3.49);
