@@ -31,7 +31,7 @@ export const initSqlJsLibrary = async () => {
   }
 };
 
-// Initialize database with sample data
+// Initialize database with sample data - Based on the shopping database used in TU/e 2ID50
 export const initDatabase = async () => {
   if (db) return db;
   
@@ -39,72 +39,174 @@ export const initDatabase = async () => {
     const sqlJs = await initSqlJsLibrary();
     const database = new sqlJs.Database();
     
-    // Create schema
+    // Create schema based on 2ID50 shopping database
     database.run(`
-      -- Employees table
-      CREATE TABLE employees (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        department TEXT NOT NULL,
-        salary INTEGER NOT NULL,
-        hire_date DATE NOT NULL,
-        manager_id INTEGER,
-        FOREIGN KEY (manager_id) REFERENCES employees(id)
+      -- Customer table
+      CREATE TABLE customer (
+        cID INTEGER PRIMARY KEY,
+        cName TEXT NOT NULL,
+        street TEXT NOT NULL,
+        city TEXT NOT NULL
       );
       
-      -- Departments table
-      CREATE TABLE departments (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
-        budget INTEGER NOT NULL,
-        location TEXT NOT NULL
+      -- Store table
+      CREATE TABLE store (
+        sID INTEGER PRIMARY KEY,
+        sName TEXT NOT NULL,
+        street TEXT NOT NULL,
+        city TEXT NOT NULL
       );
       
-      -- Projects table
-      CREATE TABLE projects (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        department_id INTEGER NOT NULL,
-        budget INTEGER NOT NULL,
-        status TEXT CHECK(status IN ('Planning', 'Active', 'Completed', 'On Hold')),
-        start_date DATE,
-        end_date DATE,
-        FOREIGN KEY (department_id) REFERENCES departments(id)
+      -- Product table
+      CREATE TABLE product (
+        pID INTEGER PRIMARY KEY,
+        pName TEXT NOT NULL,
+        suffix TEXT
+      );
+      
+      -- Shopping list table
+      CREATE TABLE shoppinglist (
+        cID INTEGER NOT NULL,
+        pID INTEGER NOT NULL,
+        quantity INTEGER NOT NULL,
+        date DATE NOT NULL,
+        PRIMARY KEY (cID, pID, date),
+        FOREIGN KEY (cID) REFERENCES customer(cID),
+        FOREIGN KEY (pID) REFERENCES product(pID)
+      );
+      
+      -- Purchase table (transactions)
+      CREATE TABLE purchase (
+        tID INTEGER PRIMARY KEY,
+        cID INTEGER NOT NULL,
+        sID INTEGER NOT NULL,
+        pID INTEGER NOT NULL,
+        date DATE NOT NULL,
+        quantity INTEGER NOT NULL,
+        price REAL NOT NULL,
+        FOREIGN KEY (cID) REFERENCES customer(cID),
+        FOREIGN KEY (sID) REFERENCES store(sID),
+        FOREIGN KEY (pID) REFERENCES product(pID)
+      );
+      
+      -- Inventory table
+      CREATE TABLE inventory (
+        sID INTEGER NOT NULL,
+        pID INTEGER NOT NULL,
+        date DATE NOT NULL,
+        quantity INTEGER NOT NULL,
+        unit_price REAL NOT NULL,
+        PRIMARY KEY (sID, pID, date),
+        FOREIGN KEY (sID) REFERENCES store(sID),
+        FOREIGN KEY (pID) REFERENCES product(pID)
       );
       
       -- Create indexes for better performance
-      CREATE INDEX idx_employees_department ON employees(department);
-      CREATE INDEX idx_employees_salary ON employees(salary);
-      CREATE INDEX idx_projects_status ON projects(status);
+      CREATE INDEX idx_purchase_customer ON purchase(cID);
+      CREATE INDEX idx_purchase_store ON purchase(sID);
+      CREATE INDEX idx_purchase_date ON purchase(date);
+      CREATE INDEX idx_inventory_store ON inventory(sID);
     `);
     
-    // Insert sample data
+    // Insert sample data with Dutch/European context
     database.run(`
-      -- Insert departments
-      INSERT INTO departments (id, name, budget, location) VALUES 
-        (1, 'Engineering', 500000, 'Building A'),
-        (2, 'Marketing', 300000, 'Building B'),
-        (3, 'HR', 200000, 'Building A'),
-        (4, 'Sales', 400000, 'Building C');
+      -- Insert customers (mix of Dutch and international names reflecting TU/e diversity)
+      INSERT INTO customer (cID, cName, street, city) VALUES 
+        (1, 'Emma van der Berg', 'Dommelstraat 12', 'Eindhoven'),
+        (2, 'Liam Chen', 'Pastoriestraat 45', 'Eindhoven'),
+        (3, 'Sophie Mueller', 'Keizersgracht 78', 'Amsterdam'),
+        (4, 'James Anderson', 'Wilhelminalaan 23', 'Eindhoven'),
+        (5, 'Fatima Al-Rashid', 'Stratumseind 156', 'Eindhoven'),
+        (6, 'Lucas Janssen', 'Markt 34', 'Utrecht'),
+        (7, 'Priya Sharma', 'Beukenlaan 89', 'Eindhoven'),
+        (8, 'Marco Rossi', 'Nieuwe Gracht 67', 'Delft');
       
-      -- Insert employees
-      INSERT INTO employees (id, name, department, salary, hire_date, manager_id) VALUES 
-        (1, 'Alice Johnson', 'Engineering', 95000, '2020-01-15', NULL),
-        (2, 'Bob Smith', 'Engineering', 85000, '2020-03-20', 1),
-        (3, 'Carol White', 'Marketing', 75000, '2019-06-10', NULL),
-        (4, 'David Brown', 'Marketing', 65000, '2021-02-01', 3),
-        (5, 'Eve Davis', 'HR', 70000, '2018-11-30', NULL),
-        (6, 'Frank Miller', 'Engineering', 90000, '2019-09-15', 1),
-        (7, 'Grace Wilson', 'Sales', 80000, '2020-07-22', NULL),
-        (8, 'Henry Taylor', 'Sales', 72000, '2021-01-10', 7);
+      -- Insert stores (Dutch supermarket chains)
+      INSERT INTO store (sID, sName, street, city) VALUES 
+        (1, 'Albert Heijn', 'Piazza Center', 'Eindhoven'),
+        (2, 'Jumbo', 'Winkelcentrum Woensel', 'Eindhoven'),
+        (3, 'Albert Heijn', 'Damrak 90', 'Amsterdam'),
+        (4, 'PLUS', 'Hoogstraat 45', 'Eindhoven'),
+        (5, 'Lidl', 'Europalaan 12', 'Utrecht'),
+        (6, 'Jumbo', 'Mekelpark 8', 'Delft'),
+        (7, 'Coop', 'Marktstraat 23', 'Eindhoven');
       
-      -- Insert projects
-      INSERT INTO projects (id, name, department_id, budget, status, start_date, end_date) VALUES
-        (1, 'Project Alpha', 1, 150000, 'Active', '2024-01-01', NULL),
-        (2, 'Project Beta', 1, 200000, 'Completed', '2023-06-01', '2024-03-31'),
-        (3, 'Campaign 2024', 2, 50000, 'Active', '2024-02-15', NULL),
-        (4, 'Sales Drive Q4', 4, 75000, 'Planning', NULL, NULL),
-        (5, 'Training Program', 3, 30000, 'On Hold', '2024-03-01', NULL);
+      -- Insert products (typical Dutch/European groceries)
+      INSERT INTO product (pID, pName, suffix) VALUES
+        (1, 'Gouda Cheese', '250g'),
+        (2, 'Stroopwafels', 'pack of 8'),
+        (3, 'Heineken Beer', '6-pack'),
+        (4, 'Hagelslag', 'milk chocolate 400g'),
+        (5, 'Douwe Egberts Coffee', '500g'),
+        (6, 'Albert Heijn Bread', 'whole wheat'),
+        (7, 'Tony Chocolonely', 'milk chocolate 180g'),
+        (8, 'Milk', '1L carton'),
+        (9, 'Bananas', 'per kg'),
+        (10, 'Pasta', 'penne 500g'),
+        (11, 'Tomatoes', 'cherry 250g'),
+        (12, 'Yogurt', 'Greek style 500g');
+      
+      -- Insert shopping lists (what people plan to buy)
+      INSERT INTO shoppinglist (cID, pID, quantity, date) VALUES
+        (1, 1, 2, '2024-08-10'),
+        (1, 5, 1, '2024-08-10'),
+        (1, 8, 1, '2024-08-10'),
+        (2, 3, 1, '2024-08-10'),
+        (2, 7, 2, '2024-08-10'),
+        (3, 2, 1, '2024-08-11'),
+        (3, 4, 1, '2024-08-11'),
+        (4, 6, 2, '2024-08-11'),
+        (4, 8, 2, '2024-08-11'),
+        (5, 9, 2, '2024-08-12'),
+        (5, 10, 1, '2024-08-12'),
+        (1, 9, 1, '2024-08-13'),
+        (1, 11, 1, '2024-08-13');
+      
+      -- Insert purchases (actual transactions)
+      INSERT INTO purchase (tID, cID, sID, pID, date, quantity, price) VALUES
+        (1, 1, 1, 1, '2024-08-10', 2, 7.98),
+        (2, 1, 1, 5, '2024-08-10', 1, 4.49),
+        (3, 1, 1, 8, '2024-08-10', 1, 1.35),
+        (4, 2, 2, 3, '2024-08-10', 1, 8.99),
+        (5, 2, 2, 7, '2024-08-10', 1, 3.79),
+        (6, 3, 3, 2, '2024-08-11', 1, 2.89),
+        (7, 3, 3, 4, '2024-08-11', 1, 2.15),
+        (8, 4, 1, 6, '2024-08-11', 2, 3.18),
+        (9, 4, 1, 8, '2024-08-11', 2, 2.70),
+        (10, 5, 4, 9, '2024-08-12', 2, 3.58),
+        (11, 5, 4, 10, '2024-08-12', 1, 1.89),
+        (12, 1, 2, 9, '2024-08-13', 1, 1.79),
+        (13, 1, 2, 11, '2024-08-13', 1, 2.49);
+      
+      -- Insert inventory (what stores have in stock)
+      INSERT INTO inventory (sID, pID, date, quantity, unit_price) VALUES
+        -- Albert Heijn Eindhoven
+        (1, 1, '2024-08-10', 50, 3.99),
+        (1, 2, '2024-08-10', 30, 2.89),
+        (1, 5, '2024-08-10', 25, 4.49),
+        (1, 6, '2024-08-10', 40, 1.59),
+        (1, 8, '2024-08-10', 100, 1.35),
+        (1, 9, '2024-08-10', 80, 1.79),
+        (1, 11, '2024-08-10', 60, 2.49),
+        
+        -- Jumbo Eindhoven  
+        (2, 3, '2024-08-10', 20, 8.99),
+        (2, 7, '2024-08-10', 15, 3.79),
+        (2, 8, '2024-08-10', 75, 1.29),
+        (2, 9, '2024-08-10', 70, 1.79),
+        (2, 10, '2024-08-10', 35, 1.99),
+        (2, 11, '2024-08-10', 45, 2.49),
+        
+        -- Albert Heijn Amsterdam
+        (3, 1, '2024-08-11', 35, 4.19),
+        (3, 2, '2024-08-11', 25, 2.89),
+        (3, 4, '2024-08-11', 40, 2.15),
+        (3, 8, '2024-08-11', 90, 1.39),
+        
+        -- PLUS Eindhoven
+        (4, 9, '2024-08-12', 60, 1.79),
+        (4, 10, '2024-08-12', 30, 1.89),
+        (4, 12, '2024-08-12', 20, 3.49);
     `);
     
     db = database;

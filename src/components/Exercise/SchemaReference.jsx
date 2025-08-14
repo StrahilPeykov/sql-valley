@@ -7,35 +7,60 @@ const SchemaReference = () => {
   
   const tables = [
     {
-      name: 'employees',
+      name: 'customer',
       columns: [
-        'id (INTEGER)',
-        'name (TEXT)',
-        'department (TEXT)',
-        'salary (INTEGER)',
-        'hire_date (DATE)',
-        'manager_id (INTEGER)'
+        'cID (INTEGER) - PK',
+        'cName (TEXT)',
+        'street (TEXT)',
+        'city (TEXT)'
       ]
     },
     {
-      name: 'departments',
+      name: 'store',
       columns: [
-        'id (INTEGER)',
-        'name (TEXT)',
-        'budget (INTEGER)',
-        'location (TEXT)'
+        'sID (INTEGER) - PK',
+        'sName (TEXT)',
+        'street (TEXT)',
+        'city (TEXT)'
       ]
     },
     {
-      name: 'projects',
+      name: 'product',
       columns: [
-        'id (INTEGER)',
-        'name (TEXT)',
-        'department_id (INTEGER)',
-        'budget (INTEGER)',
-        'status (TEXT)',
-        'start_date (DATE)',
-        'end_date (DATE)'
+        'pID (INTEGER) - PK',
+        'pName (TEXT)',
+        'suffix (TEXT)'
+      ]
+    },
+    {
+      name: 'shoppinglist',
+      columns: [
+        'cID (INTEGER) - FK',
+        'pID (INTEGER) - FK',
+        'quantity (INTEGER)',
+        'date (DATE)'
+      ]
+    },
+    {
+      name: 'purchase',
+      columns: [
+        'tID (INTEGER) - PK',
+        'cID (INTEGER) - FK',
+        'sID (INTEGER) - FK',
+        'pID (INTEGER) - FK',
+        'date (DATE)',
+        'quantity (INTEGER)',
+        'price (REAL)'
+      ]
+    },
+    {
+      name: 'inventory',
+      columns: [
+        'sID (INTEGER) - FK',
+        'pID (INTEGER) - FK',
+        'date (DATE)',
+        'quantity (INTEGER)',
+        'unit_price (REAL)'
       ]
     }
   ];

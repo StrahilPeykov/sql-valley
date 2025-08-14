@@ -14,7 +14,7 @@ const Header = () => {
           <GraduationCap className={styles.logo} />
           <div>
             <h1 className={styles.title}>SQL Valley</h1>
-            <p className={styles.subtitle}>TU/e Database Learning Platform</p>
+            <p className={styles.subtitle}>Interactive SQL Learning for TU/e Database Courses</p>
           </div>
         </div>
         

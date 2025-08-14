@@ -24,7 +24,7 @@ const highlightSQL = (code) => {
     'UPPER', 'LOWER', 'SUBSTR', 'TRIM', 'COALESCE', 'CAST'
   ];
   
-  const tables = ['employees', 'departments', 'projects'];
+  const tables = ['customer', 'store', 'product', 'shoppinglist', 'purchase', 'inventory'];
   
   // First, extract and preserve comments and strings with placeholders
   const preservedItems = [];
@@ -168,9 +168,10 @@ const SQLEditor = ({ onExecute }) => {
   const SQL_COMPLETIONS = [
     'SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT JOIN', 'INNER JOIN',
     'GROUP BY', 'ORDER BY', 'HAVING', 'COUNT', 'SUM', 'AVG', 'MAX', 'MIN',
-    'employees', 'departments', 'projects',
-    'id', 'name', 'salary', 'department', 'budget', 'location', 'status',
-    'hire_date', 'manager_id', 'department_id', 'start_date', 'end_date'
+    'customer', 'store', 'product', 'shoppinglist', 'purchase', 'inventory',
+    'cID', 'cName', 'street', 'city', 'sID', 'sName', 'pID', 'pName', 'suffix',
+    'tID', 'quantity', 'price', 'unit_price', 'date', 'EXISTS', 'NOT EXISTS',
+    'DISTINCT', 'AS', 'AND', 'OR', 'IN', 'NOT IN'
   ];
   
   // Reset suggestions when exercise changes

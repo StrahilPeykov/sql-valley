@@ -1,470 +1,475 @@
 export const exercises = [
   {
     id: 1,
-    title: "SELECT Basics",
-    category: "Fundamentals",
+    title: "Your First SELECT",
+    category: "Basic Queries",
     difficulty: "Beginner",
     points: 10,
     prerequisites: [],
-    description: "Let's start with a simple SELECT query. Retrieve all employees from the Engineering department.",
+    description: "Let's start simple! Find all customers who live in Eindhoven (the home of TU/e).",
     shortDescription: "Learn the basics of SELECT statements",
     learningObjectives: [
       "Understand SELECT statement syntax",
       "Use WHERE clause for filtering",
       "Select all columns with *"
     ],
-    theory: `The SELECT statement is used to query data from a database. The WHERE clause filters records based on specified conditions.
+    theory: `The SELECT statement is the foundation of SQL querying. It retrieves data from database tables.
+
+Basic syntax:
+SELECT column1, column2, ... FROM table_name WHERE condition;
+
+Key points:
+• Use * to select all columns
+• WHERE clause filters rows based on conditions
+• String values need quotes: 'Eindhoven'
+• SQL is case-insensitive for keywords, but data values are case-sensitive
+
+Example:
+SELECT * FROM customer WHERE city = 'Amsterdam';`,
     
-    Syntax: SELECT column1, column2 FROM table WHERE condition;
-    
-    Use * to select all columns.
-    
-    Example:
-    SELECT * FROM users WHERE age > 18;`,
-    
-    initialCode: "-- Retrieve all employees from Engineering department\n-- Try: SELECT * FROM employees WHERE department = 'Engineering'\n\nSELECT * FROM employees",
-    solution: "SELECT * FROM employees WHERE department = 'Engineering'",
+    initialCode: "-- Find all customers living in Eindhoven\n-- Remember: string values need quotes!\n\nSELECT * FROM customer",
+    solution: "SELECT * FROM customer WHERE city = 'Eindhoven'",
     alternativeSolutions: [
-      "SELECT * FROM employees WHERE department='Engineering'",
-      "select * from employees where department = 'Engineering'"
+      "SELECT * FROM customer WHERE city='Eindhoven'",
+      "select * from customer where city = 'Eindhoven'"
     ],
     
     testCases: [
       {
-        name: "Returns results",
+        name: "Query executes successfully",
         weight: 20,
-        check: (result) => result && result.length > 0,
-        feedback: "Your query should return at least one result"
+        check: (result) => result && result.length >= 0,
+        feedback: "Your query should execute without errors"
       },
       {
-        name: "Correct number of rows",
+        name: "Returns results",
         weight: 30,
-        check: (result) => result && result.length === 3,
-        feedback: "There are exactly 3 employees in Engineering"
+        check: (result) => result && result.length > 0,
+        feedback: "Your query should return at least one customer"
       },
       {
-        name: "All from Engineering",
+        name: "Correct number of Eindhoven customers",
         weight: 50,
-        check: (result) => result && result.every(row => row[2] === 'Engineering'),
-        feedback: "All employees should be from the Engineering department"
+        check: (result) => result && result.length === 4,
+        feedback: "There are exactly 4 customers living in Eindhoven"
       }
     ],
     
     badges: [
       {
-        id: "first_select",
-        name: "First Query",
-        description: "Complete your first SELECT statement",
+        id: "first_query",
+        name: "First Steps",
+        description: "Execute your first SQL query",
         icon: "🎯"
-      }
-    ],
-    
-    bonusObjectives: [
-      {
-        description: "Complete without using any hints",
-        points: 5,
-        check: (hintsUsed) => hintsUsed === 0
-      },
-      {
-        description: "Complete in under 60 seconds",
-        points: 3,
-        check: (timeSpent) => timeSpent < 60
       }
     ]
   },
   
   {
     id: 2,
-    title: "Filtering with Conditions",
-    category: "Fundamentals",
-    difficulty: "Beginner",
+    title: "Selecting Specific Columns",
+    category: "Basic Queries",
+    difficulty: "Beginner", 
     points: 15,
     prerequisites: [1],
-    description: "Find all employees with a salary greater than 80000. Order them by salary descending.",
-    shortDescription: "Master filtering with WHERE clauses",
+    description: "This time, let's be more specific. Show only the customer names and cities for all customers, ordered by name.",
+    shortDescription: "Choose specific columns and sort results",
     learningObjectives: [
-      "Use comparison operators in WHERE clauses",
-      "Order results with ORDER BY",
-      "Combine filtering and sorting"
+      "Select specific columns instead of *",
+      "Use ORDER BY to sort results",
+      "Understand column ordering in results"
     ],
-    theory: `Comparison operators in SQL:
-    • Greater than: >
-    • Less than: <
-    • Greater than or equal: >=
-    • Less than or equal: <=
-    • Equal to: =
-    • Not equal to: != or <>
+    theory: `Instead of selecting all columns with *, you can specify exactly which columns you want:
+
+SELECT column1, column2 FROM table_name;
+
+Sorting results:
+• ORDER BY column_name ASC (ascending - default)
+• ORDER BY column_name DESC (descending)
+
+Example:
+SELECT cName, city FROM customer ORDER BY cName ASC;
+
+This gives you more control over what data you see and how it's presented.`,
     
-    ORDER BY sorts results:
-    • ASC: ascending (default)
-    • DESC: descending
-    
-    Example:
-    SELECT * FROM products 
-    WHERE price > 100 
-    ORDER BY price DESC;`,
-    
-    initialCode: "-- Find high-earning employees\n-- Filter by salary > 80000 and sort by salary (highest first)\n\nSELECT * FROM employees\nWHERE ",
-    solution: "SELECT * FROM employees WHERE salary > 80000 ORDER BY salary DESC",
+    initialCode: "-- Show customer names and cities, sorted by name\n-- Select only cName and city columns\n\nSELECT cName, city\nFROM customer\n",
+    solution: "SELECT cName, city FROM customer ORDER BY cName",
     
     testCases: [
       {
-        name: "Returns results",
-        weight: 15,
-        check: (result) => result && result.length > 0,
-        feedback: "Query should return results"
-      },
-      {
-        name: "Correct count",
+        name: "Returns all customers",
         weight: 25,
-        check: (result) => result && result.length === 3,
-        feedback: "Should find exactly 3 employees with salary > 80000"
+        check: (result) => result && result.length === 8,
+        feedback: "Should return all 8 customers"
       },
       {
-        name: "All high earners",
-        weight: 30,
-        check: (result) => result && result.every(row => row[3] > 80000),
-        feedback: "All employees should have salary > 80000"
+        name: "Has exactly 2 columns",
+        weight: 25,
+        check: (result) => result && result[0] && result[0].length === 2,
+        feedback: "Should select exactly 2 columns: cName and city"
       },
       {
-        name: "Properly sorted",
-        weight: 30,
+        name: "Properly sorted by name",
+        weight: 50,
         check: (result) => {
-          if (!result) return false;
+          if (!result || result.length === 0) return false;
           for (let i = 1; i < result.length; i++) {
-            if (result[i][3] > result[i-1][3]) return false;
+            if (result[i][0].localeCompare(result[i-1][0]) < 0) return false;
           }
           return true;
         },
-        feedback: "Results should be sorted by salary in descending order"
-      }
-    ],
-    
-    badges: [
-      {
-        id: "filter_master",
-        name: "Filter Master",
-        description: "Successfully filter and sort data",
-        icon: "🔍"
+        feedback: "Results should be sorted by customer name in ascending order"
       }
     ]
   },
   
   {
     id: 3,
-    title: "Aggregate Functions",
-    category: "Data Analysis",
-    difficulty: "Intermediate",
+    title: "Working with Numbers",
+    category: "Basic Queries",
+    difficulty: "Beginner",
     points: 20,
     prerequisites: [2],
-    description: "Calculate the average salary for each department. Order the results by average salary descending.",
-    shortDescription: "Calculate averages, sums, and counts",
+    description: "Find all products with a price above €2.50 in the Albert Heijn inventory (store ID 1) on 2024-08-10. Show product name, suffix, and unit price.",
+    shortDescription: "Filter with numerical comparisons",
     learningObjectives: [
-      "Use aggregate functions (AVG, SUM, COUNT)",
-      "Group data with GROUP BY",
-      "Combine aggregation with sorting"
+      "Use comparison operators with numbers",
+      "Combine multiple WHERE conditions",
+      "Work with real numbers (prices)"
     ],
-    theory: `Aggregate functions perform calculations on sets of rows:
+    theory: `SQL supports various comparison operators for numbers:
+• > (greater than)
+• < (less than)  
+• >= (greater than or equal)
+• <= (less than or equal)
+• = (equal)
+• != or <> (not equal)
+
+Combining conditions:
+• AND: both conditions must be true
+• OR: at least one condition must be true
+
+Example:
+SELECT pName, unit_price 
+FROM inventory 
+WHERE sID = 1 AND unit_price > 2.50;`,
     
-    Common Functions:
-    • COUNT(*): Count all rows
-    • COUNT(column): Count non-null values
-    • SUM(column): Sum values
-    • AVG(column): Average values
-    • MAX(column): Maximum value
-    • MIN(column): Minimum value
-    
-    GROUP BY groups rows with same values:
-    SELECT department, AVG(salary) 
-    FROM employees 
-    GROUP BY department;
-    
-    Rule: Non-aggregate columns in SELECT must be in GROUP BY`,
-    
-    initialCode: "-- Calculate average salary by department\n-- Group by department and order by average salary (highest first)\n\nSELECT department, AVG(salary) as avg_salary\nFROM employees\n",
-    solution: "SELECT department, AVG(salary) as avg_salary FROM employees GROUP BY department ORDER BY avg_salary DESC",
+    initialCode: "-- Find expensive products at Albert Heijn\n-- Products with unit_price > 2.50 at store 1 on 2024-08-10\n\nSELECT p.pName, p.suffix, i.unit_price\nFROM product p\nJOIN inventory i ON p.pID = i.pID\nWHERE ",
+    solution: "SELECT p.pName, p.suffix, i.unit_price FROM product p JOIN inventory i ON p.pID = i.pID WHERE i.sID = 1 AND i.unit_price > 2.50 AND i.date = '2024-08-10'",
     
     testCases: [
       {
         name: "Returns results",
-        weight: 10,
-        check: (result) => result && result.length > 0,
-        feedback: "Query should return results"
-      },
-      {
-        name: "All departments",
         weight: 20,
-        check: (result) => result && result.length === 4,
-        feedback: "Should show all 4 departments"
+        check: (result) => result && result.length > 0,
+        feedback: "Should find products above €2.50"
       },
       {
-        name: "Correct averages",
-        weight: 40,
-        check: (result) => {
-          if (!result) return false;
-          const expectedAvgs = {
-            'Engineering': 90000,
-            'Sales': 76000,
-            'Marketing': 70000,
-            'HR': 70000
-          };
-          return result.every(row => {
-            const dept = row[0];
-            const avg = row[1];
-            return Math.abs(avg - expectedAvgs[dept]) < 1;
-          });
-        },
-        feedback: "Averages should be correctly calculated"
-      },
-      {
-        name: "Properly sorted",
+        name: "Correct number of expensive products",
         weight: 30,
-        check: (result) => {
-          if (!result) return false;
-          for (let i = 1; i < result.length; i++) {
-            if (result[i][1] > result[i-1][1]) return false;
-          }
-          return true;
-        },
-        feedback: "Should be sorted by average salary descending"
-      }
-    ],
-    
-    badges: [
+        check: (result) => result && result.length === 2,
+        feedback: "Should find exactly 2 products above €2.50 at Albert Heijn"
+      },
       {
-        id: "data_analyst",
-        name: "Data Analyst",
-        description: "Master aggregate functions",
-        icon: "📊"
+        name: "All prices above 2.50",
+        weight: 30,
+        check: (result) => result && result.every(row => row[2] > 2.50),
+        feedback: "All products should have unit_price > 2.50"
+      },
+      {
+        name: "Has 3 columns",
+        weight: 20,
+        check: (result) => result && result[0] && result[0].length === 3,
+        feedback: "Should show product name, suffix, and unit price"
       }
     ]
   },
   
   {
     id: 4,
-    title: "JOIN Operations",
-    category: "Advanced Queries",
-    difficulty: "Advanced",
-    points: 30,
+    title: "Counting and Grouping",
+    category: "Aggregation",
+    difficulty: "Intermediate",
+    points: 25,
     prerequisites: [3],
-    description: "Find all active projects along with their department names and locations.",
-    shortDescription: "Combine data from multiple tables",
+    description: "Count how many different products each store has in inventory on 2024-08-10. Show store name and product count, ordered by count (highest first).",
+    shortDescription: "Master COUNT and GROUP BY",
     learningObjectives: [
-      "Understand JOIN operations",
-      "Use table aliases",
-      "Combine JOIN with WHERE"
+      "Use COUNT() aggregate function",
+      "Group results with GROUP BY",
+      "Join tables for meaningful output"
     ],
-    theory: `JOIN combines rows from multiple tables based on related columns.
+    theory: `Aggregate functions perform calculations on groups of rows:
+
+COUNT() variations:
+• COUNT(*) - counts all rows (including NULLs)
+• COUNT(column) - counts non-NULL values
+• COUNT(DISTINCT column) - counts unique values
+
+GROUP BY groups rows with the same values:
+SELECT store_name, COUNT(*)
+FROM inventory
+GROUP BY store_name;
+
+Important rule: Any column in SELECT (that's not an aggregate function) must be in GROUP BY.`,
     
-    Types of JOINs:
-    • INNER JOIN: Only matching rows from both tables
-    • LEFT JOIN: All rows from left table, matching from right
-    • RIGHT JOIN: All rows from right table, matching from left
-    • FULL OUTER JOIN: All rows from both tables
-    
-    Syntax with aliases:
-    SELECT p.name, d.name
-    FROM projects p
-    JOIN departments d ON p.department_id = d.id
-    WHERE p.status = 'Active';`,
-    
-    initialCode: "-- Join projects with departments to show active projects\n-- Show: project name, department name, location, budget\n\nSELECT p.name, d.name, d.location, p.budget\nFROM projects p\nJOIN departments d ON ",
-    solution: "SELECT p.name as project_name, d.name as dept_name, d.location, p.budget FROM projects p JOIN departments d ON p.department_id = d.id WHERE p.status = 'Active'",
-    
-    testCases: [
-      {
-        name: "Returns results",
-        weight: 15,
-        check: (result) => result && result.length > 0,
-        feedback: "Query should return results"
-      },
-      {
-        name: "Active projects only",
-        weight: 35,
-        check: (result) => result && result.length === 2,
-        feedback: "Should return exactly 2 active projects"
-      },
-      {
-        name: "Has all columns",
-        weight: 25,
-        check: (result) => result && result[0] && result[0].length === 4,
-        feedback: "Should return 4 columns: project name, dept name, location, budget"
-      },
-      {
-        name: "Correct join",
-        weight: 25,
-        check: (result) => {
-          if (!result || result.length !== 2) return false;
-          // Check if we have the right projects
-          const projectNames = result.map(r => r[0]);
-          return projectNames.includes('Project Alpha') && projectNames.includes('Campaign 2024');
-        },
-        feedback: "Should join the correct active projects with their departments"
-      }
-    ],
-    
-    badges: [
-      {
-        id: "join_master",
-        name: "JOIN Master",
-        description: "Successfully combine data from multiple tables",
-        icon: "🔗"
-      }
-    ]
-  },
-  
-  {
-    id: 5,
-    title: "Subqueries",
-    category: "Advanced Queries",
-    difficulty: "Advanced",
-    points: 35,
-    prerequisites: [4],
-    description: "Find all employees who earn more than the average salary of their department.",
-    shortDescription: "Write queries within queries",
-    learningObjectives: [
-      "Understand subqueries",
-      "Use correlated subqueries",
-      "Compare individual vs group values"
-    ],
-    theory: `A subquery is a query nested inside another query.
-    
-    Types:
-    • Simple subquery: Runs once, independent
-    • Correlated subquery: References outer query, runs for each row
-    
-    Example correlated subquery:
-    SELECT name, salary
-    FROM employees e1
-    WHERE salary > (
-      SELECT AVG(salary)
-      FROM employees e2
-      WHERE e2.department = e1.department
-    );
-    
-    This compares each employee's salary to their department's average.`,
-    
-    initialCode: "-- Find employees earning above their department average\n-- Use a correlated subquery to calculate department averages\n\nSELECT name, department, salary\nFROM employees e1\nWHERE salary > (\n  SELECT AVG(salary)\n  FROM employees e2\n  WHERE ",
-    solution: `SELECT name, department, salary 
-FROM employees e1 
-WHERE salary > (
-  SELECT AVG(salary) 
-  FROM employees e2 
-  WHERE e2.department = e1.department
-)`,
+    initialCode: "-- Count products per store\n-- Show store name and product count for 2024-08-10\n\nSELECT s.sName, COUNT(*) as product_count\nFROM store s\nJOIN inventory i ON s.sID = i.sID\nWHERE i.date = '2024-08-10'\n",
+    solution: "SELECT s.sName, COUNT(*) as product_count FROM store s JOIN inventory i ON s.sID = i.sID WHERE i.date = '2024-08-10' GROUP BY s.sName ORDER BY product_count DESC",
     
     testCases: [
       {
         name: "Returns results",
         weight: 20,
         check: (result) => result && result.length > 0,
-        feedback: "Query should return results"
+        feedback: "Should return store counts"
       },
       {
-        name: "Correct count",
-        weight: 40,
-        check: (result) => result && result.length === 3,
-        feedback: "Should find exactly 3 employees above their department average"
+        name: "Correct number of stores",
+        weight: 25,
+        check: (result) => result && result.length === 4,
+        feedback: "Should show exactly 4 stores with inventory on that date"
       },
       {
-        name: "Correct employees",
-        weight: 40,
+        name: "Properly sorted by count",
+        weight: 30,
         check: (result) => {
-          if (!result || result.length !== 3) return false;
-          const names = result.map(r => r[0]);
-          return names.includes('Alice Johnson') && 
-                 names.includes('Carol White') && 
-                 names.includes('Grace Wilson');
+          if (!result || result.length === 0) return false;
+          for (let i = 1; i < result.length; i++) {
+            if (result[i][1] > result[i-1][1]) return false;
+          }
+          return true;
         },
-        feedback: "Should identify the correct employees earning above department average"
-      }
-    ],
-    
-    badges: [
+        feedback: "Should be sorted by product count (highest first)"
+      },
       {
-        id: "subquery_expert",
-        name: "Subquery Expert",
-        description: "Master nested queries",
-        icon: "🎯"
+        name: "Albert Heijn has most products",
+        weight: 25,
+        check: (result) => result && result[0] && result[0][0] === 'Albert Heijn' && result[0][1] === 7,
+        feedback: "Albert Heijn should have the most products (7) on that date"
+      }
+    ]
+  },
+  
+  {
+    id: 5,
+    title: "Shopping Lists vs Purchases",
+    category: "Intermediate Queries",
+    difficulty: "Intermediate",
+    points: 30,
+    prerequisites: [4],
+    description: "Find customers who bought exactly what they planned. Show customers who have identical product lists in both their shopping list and purchases for the same date.",
+    shortDescription: "Compare data across tables",
+    learningObjectives: [
+      "Use EXISTS for existence checks",
+      "Compare related data in different tables",
+      "Work with date-based relationships"
+    ],
+    theory: `EXISTS checks if a subquery returns any rows:
+
+SELECT customer_name
+FROM customer c
+WHERE EXISTS (
+  SELECT 1 FROM purchase p 
+  WHERE p.cID = c.cID
+);
+
+This is useful for finding records that have related data in other tables.
+
+NOT EXISTS finds records that DON'T have related data.
+
+Key concept: EXISTS returns true/false, not actual data.`,
+    
+    initialCode: "-- Find customers who bought exactly what they planned\n-- Compare shopping lists with actual purchases\n\nSELECT DISTINCT c.cName\nFROM customer c\nJOIN shoppinglist sl ON c.cID = sl.cID\nWHERE EXISTS (\n  SELECT 1 FROM purchase p\n  WHERE p.cID = sl.cID \n    AND p.pID = sl.pID \n    AND p.date = sl.date\n)\nAND NOT EXISTS (\n",
+    solution: `SELECT DISTINCT c.cName
+FROM customer c
+JOIN shoppinglist sl ON c.cID = sl.cID
+WHERE EXISTS (
+  SELECT 1 FROM purchase p
+  WHERE p.cID = sl.cID 
+    AND p.pID = sl.pID 
+    AND p.date = sl.date
+)
+AND NOT EXISTS (
+  SELECT 1 FROM purchase p
+  WHERE p.cID = c.cID
+    AND p.date = sl.date
+    AND p.pID NOT IN (
+      SELECT pID FROM shoppinglist sl2 
+      WHERE sl2.cID = p.cID AND sl2.date = p.date
+    )
+)`,
+    
+    testCases: [
+      {
+        name: "Query executes",
+        weight: 30,
+        check: (result) => result !== null,
+        feedback: "Query should execute without errors"
+      },
+      {
+        name: "Returns some results",
+        weight: 35,
+        check: (result) => result && result.length > 0,
+        feedback: "Should find at least one customer who bought exactly what they planned"
+      },
+      {
+        name: "No duplicate customer names",
+        weight: 35,
+        check: (result) => {
+          if (!result) return false;
+          const names = result.map(r => r[0]);
+          return names.length === new Set(names).size;
+        },
+        feedback: "Each customer should appear only once in the results"
       }
     ]
   },
   
   {
     id: 6,
-    title: "Complex Aggregation with HAVING",
+    title: "Price Analysis with Subqueries",
     category: "Advanced Queries",
-    difficulty: "Expert",
-    points: 40,
-    prerequisites: [3, 5],
-    description: "Find departments where the total salary budget exceeds 150000. Show department name, employee count, and total salary.",
-    shortDescription: "Master complex data analysis",
+    difficulty: "Advanced",
+    points: 35,
+    prerequisites: [5],
+    description: "Find products that are priced above the average unit price across all stores. Show product name and the number of stores selling it above average price.",
+    shortDescription: "Master subqueries and advanced analysis",
     learningObjectives: [
-      "Use HAVING to filter aggregated results",
-      "Combine multiple aggregate functions",
-      "Understand HAVING vs WHERE"
+      "Use subqueries in WHERE clauses",
+      "Calculate averages across datasets",
+      "Combine aggregation with filtering"
     ],
-    theory: `HAVING filters groups after GROUP BY, while WHERE filters rows before grouping.
+    theory: `Subqueries (nested queries) allow complex data analysis:
+
+Types of subqueries:
+• Scalar subquery: returns a single value
+• Correlated subquery: references outer query
+
+Example:
+SELECT product_name 
+FROM products 
+WHERE price > (SELECT AVG(price) FROM products);
+
+The inner query calculates the average, then the outer query finds products above that average.
+
+You can use subqueries with EXISTS, IN, comparison operators, etc.`,
     
-    Key Difference:
-    • WHERE: Filters individual rows before grouping
-    • HAVING: Filters groups after aggregation
-    
-    Example:
-    SELECT department, COUNT(*), SUM(salary)
-    FROM employees
-    WHERE hire_date > '2020-01-01'  -- Filter rows
-    GROUP BY department
-    HAVING SUM(salary) > 200000     -- Filter groups
-    ORDER BY SUM(salary) DESC;
-    
-    You can use multiple aggregate functions in one query.`,
-    
-    initialCode: "-- Find departments with high salary budgets\n-- Show: department, employee count, total salary\n-- Only departments with total > 150000\n\nSELECT department, COUNT(*) as emp_count, SUM(salary) as total_salary\nFROM employees\nGROUP BY department\n",
-    solution: `SELECT department, COUNT(*) as emp_count, SUM(salary) as total_salary
-FROM employees
-GROUP BY department
-HAVING SUM(salary) > 150000
-ORDER BY total_salary DESC`,
+    initialCode: "-- Find products priced above average\n-- Show product name and count of stores pricing it above average\n\nSELECT p.pName, COUNT(*) as store_count\nFROM product p\nJOIN inventory i ON p.pID = i.pID\nWHERE i.unit_price > (\n  SELECT AVG(unit_price)\n  FROM inventory\n)\n",
+    solution: `SELECT p.pName, COUNT(*) as store_count
+FROM product p
+JOIN inventory i ON p.pID = i.pID
+WHERE i.unit_price > (
+  SELECT AVG(unit_price)
+  FROM inventory
+)
+GROUP BY p.pName
+ORDER BY store_count DESC`,
     
     testCases: [
       {
         name: "Returns results",
-        weight: 15,
-        check: (result) => result && result.length > 0,
-        feedback: "Query should return results"
-      },
-      {
-        name: "Correct departments",
-        weight: 30,
-        check: (result) => result && result.length === 2,
-        feedback: "Should find exactly 2 departments with total salary > 150000"
-      },
-      {
-        name: "All above threshold",
         weight: 25,
-        check: (result) => result && result.every(row => row[2] > 150000),
-        feedback: "All departments should have total salary > 150000"
+        check: (result) => result && result.length > 0,
+        feedback: "Should find products priced above average"
       },
       {
-        name: "Properly sorted",
-        weight: 30,
+        name: "All products above average",
+        weight: 35,
         check: (result) => {
           if (!result) return false;
+          // We need to verify this makes sense - there should be some products above average
+          return result.length > 0 && result.length < 12; // Not all products should be above average
+        },
+        feedback: "Should find a reasonable number of above-average priced products"
+      },
+      {
+        name: "Grouped by product",
+        weight: 40,
+        check: (result) => {
+          if (!result) return false;
+          const productNames = result.map(r => r[0]);
+          return productNames.length === new Set(productNames).size;
+        },
+        feedback: "Each product should appear only once (properly grouped)"
+      }
+    ]
+  },
+  
+  {
+    id: 7,
+    title: "Store Chain Analysis",
+    category: "Advanced Queries",
+    difficulty: "Expert",
+    points: 40,
+    prerequisites: [4, 6],
+    description: "Find store chains (stores with the same name in different cities) and calculate their total revenue from purchases. Only show chains with revenue above €20.",
+    shortDescription: "Master complex aggregation and HAVING",
+    learningObjectives: [
+      "Use HAVING to filter aggregated results", 
+      "Understand the difference between WHERE and HAVING",
+      "Calculate totals across grouped data"
+    ],
+    theory: `HAVING vs WHERE - a crucial distinction:
+
+WHERE filters rows BEFORE grouping
+HAVING filters groups AFTER aggregation
+
+Example:
+SELECT store_name, SUM(revenue)
+FROM sales
+WHERE date > '2024-01-01'    -- Filter rows first
+GROUP BY store_name
+HAVING SUM(revenue) > 1000   -- Filter groups after aggregation
+
+Store chains: stores with the same name but different locations.
+Revenue calculation: SUM(quantity * price) from all purchases.`,
+    
+    initialCode: "-- Find profitable store chains\n-- Calculate total revenue per store name, show only chains with revenue > 20\n\nSELECT s.sName, SUM(p.quantity * p.price) as total_revenue\nFROM store s\nJOIN purchase p ON s.sID = p.sID\nGROUP BY s.sName\n",
+    solution: `SELECT s.sName, SUM(p.quantity * p.price) as total_revenue
+FROM store s
+JOIN purchase p ON s.sID = p.sID
+GROUP BY s.sName
+HAVING SUM(p.quantity * p.price) > 20
+ORDER BY total_revenue DESC`,
+    
+    testCases: [
+      {
+        name: "Returns results",
+        weight: 20,
+        check: (result) => result && result.length > 0,
+        feedback: "Should find store chains with revenue > €20"
+      },
+      {
+        name: "All chains above €20",
+        weight: 30,
+        check: (result) => result && result.every(row => row[1] > 20),
+        feedback: "All store chains should have revenue above €20"
+      },
+      {
+        name: "Properly sorted by revenue",
+        weight: 25,
+        check: (result) => {
+          if (!result || result.length === 0) return false;
           for (let i = 1; i < result.length; i++) {
-            if (result[i][2] > result[i-1][2]) return false;
+            if (result[i][1] > result[i-1][1]) return false;
           }
           return true;
         },
-        feedback: "Should be sorted by total salary descending"
+        feedback: "Should be sorted by revenue (highest first)"
+      },
+      {
+        name: "Albert Heijn has highest revenue",
+        weight: 25,
+        check: (result) => result && result[0] && result[0][0] === 'Albert Heijn',
+        feedback: "Albert Heijn should have the highest total revenue"
       }
     ],
     
     badges: [
       {
-        id: "sql_master",
-        name: "SQL Master",
-        description: "Complete all exercises",
+        id: "sql_master_2id50",
+        name: "2ID50 SQL Master", 
+        description: "Complete all SQL Valley exercises",
         icon: "🏆"
       },
       {
@@ -472,85 +477,6 @@ ORDER BY total_salary DESC`,
         name: "Aggregation Expert",
         description: "Master HAVING and complex aggregations",
         icon: "💎"
-      }
-    ]
-  },
-  
-  {
-    id: 7,
-    title: "Multiple JOINs",
-    category: "Advanced Queries",
-    difficulty: "Expert",
-    points: 45,
-    prerequisites: [4],
-    description: "Find all employees with their department budgets and the number of projects in their department.",
-    shortDescription: "Master complex multi-table queries",
-    learningObjectives: [
-      "Chain multiple JOINs",
-      "Combine JOINs with aggregation",
-      "Use subqueries with JOINs"
-    ],
-    theory: `You can chain multiple JOINs to connect several tables:
-    
-    SELECT columns
-    FROM table1 t1
-    JOIN table2 t2 ON t1.key = t2.key
-    JOIN table3 t3 ON t2.key = t3.key
-    WHERE conditions;
-    
-    You can also combine JOINs with subqueries for complex analysis.`,
-    
-    initialCode: "-- Find employees with department budget and project count\n-- Show: name, department, dept_budget, project_count\n\nSELECT \n  e.name, \n  e.department, \n  d.budget as dept_budget,\n  (SELECT COUNT(*) FROM projects p WHERE p.department_id = d.id) as project_count\nFROM employees e\nJOIN departments d ON ",
-    solution: `SELECT 
-  e.name, 
-  e.department, 
-  d.budget as dept_budget,
-  (SELECT COUNT(*) FROM projects p WHERE p.department_id = d.id) as project_count
-FROM employees e
-JOIN departments d ON e.department = d.name
-ORDER BY e.department, e.name`,
-    
-    testCases: [
-      {
-        name: "Returns all employees",
-        weight: 25,
-        check: (result) => result && result.length === 8,
-        feedback: "Should return all 8 employees"
-      },
-      {
-        name: "Has all columns",
-        weight: 25,
-        check: (result) => result && result[0] && result[0].length === 4,
-        feedback: "Should have 4 columns: name, department, budget, project_count"
-      },
-      {
-        name: "Correct budgets",
-        weight: 25,
-        check: (result) => {
-          if (!result) return false;
-          const engEmployees = result.filter(r => r[1] === 'Engineering');
-          return engEmployees.every(r => r[2] === 500000);
-        },
-        feedback: "Department budgets should be correctly joined"
-      },
-      {
-        name: "Correct project counts",
-        weight: 25,
-        check: (result) => {
-          if (!result) return false;
-          const engEmployees = result.filter(r => r[1] === 'Engineering');
-          return engEmployees.every(r => r[3] === 2);
-        },
-        feedback: "Project counts should be correctly calculated"
-      }
-    ],
-    
-    badges: [
-      {
-        id: "join_wizard",
-        name: "JOIN Wizard",
-        description: "Master multiple JOINs in a single query",
-        icon: "🧙‍♂️"
       }
     ]
   }
@@ -577,11 +503,11 @@ export function generateDetailedFeedback(exercise, testResults, userQuery, execu
     achievements: []
   };
   
-  // Summary
+  // Summary with TU/e context
   if (score === 100) {
-    feedback.summary = `🎉 Perfect! You've mastered ${exercise.title}!`;
+    feedback.summary = `🎉 Perfect! You've mastered ${exercise.title} - ready for the 2ID50 exam!`;
     
-    // Check for bonus objectives
+    // Check for bonus objectives  
     if (exercise.bonusObjectives) {
       exercise.bonusObjectives.forEach(bonus => {
         if (bonus.check(executionTime)) {
@@ -593,11 +519,11 @@ export function generateDetailedFeedback(exercise, testResults, userQuery, execu
       });
     }
   } else if (score >= 70) {
-    feedback.summary = `Good job! You're ${score}% correct. Let's fix the remaining issues.`;
+    feedback.summary = `Good progress! You're ${score}% there. Keep practicing for 2ID50 success.`;
   } else if (score >= 40) {
-    feedback.summary = `You're on the right track (${score}% correct), but there are some issues to address.`;
+    feedback.summary = `You're learning! ${score}% correct. Let's work through the remaining concepts.`;
   } else {
-    feedback.summary = `Let's work through this step by step. Current score: ${score}%`;
+    feedback.summary = `Keep going! Every expert was once a beginner. Current score: ${score}%`;
   }
   
   // Detailed test results
@@ -610,30 +536,46 @@ export function generateDetailedFeedback(exercise, testResults, userQuery, execu
     });
   });
   
-  // Suggestions based on failed tests
+  // Enhanced suggestions based on failed tests
   if (failedTests.length > 0) {
-    // Analyze common issues
-    const hasNoResults = failedTests.some(t => t.name.includes('Returns results'));
-    const hasWrongCount = failedTests.some(t => t.name.includes('count') || t.name.includes('number'));
-    const hasWrongFilter = failedTests.some(t => t.name.includes('filter') || t.name.includes('WHERE'));
-    const hasWrongSort = failedTests.some(t => t.name.includes('sort') || t.name.includes('ORDER'));
+    const hasNoResults = failedTests.some(t => t.name.toLowerCase().includes('returns') || t.name.toLowerCase().includes('executes'));
+    const hasWrongCount = failedTests.some(t => t.name.toLowerCase().includes('count') || t.name.toLowerCase().includes('number'));
+    const hasWrongJoin = failedTests.some(t => t.name.toLowerCase().includes('join') || t.name.toLowerCase().includes('correct'));
+    const hasWrongSort = failedTests.some(t => t.name.toLowerCase().includes('sort') || t.name.toLowerCase().includes('order'));
+    const hasWrongGroup = failedTests.some(t => t.name.toLowerCase().includes('group'));
+    const hasWrongFilter = failedTests.some(t => t.name.toLowerCase().includes('filter') || t.name.toLowerCase().includes('above') || t.name.toLowerCase().includes('below'));
     
     if (hasNoResults) {
-      feedback.suggestions.push("Your query isn't returning any results. Check your syntax and table names.");
+      feedback.suggestions.push("Your query isn't returning any results. Check your syntax, table names, and JOIN conditions.");
     }
     if (hasWrongCount) {
-      feedback.suggestions.push("The number of results doesn't match. Review your WHERE conditions.");
+      feedback.suggestions.push("The number of results doesn't match expected. Review your WHERE conditions and JOINs.");
     }
-    if (hasWrongFilter) {
-      feedback.suggestions.push("Your filtering conditions might be incorrect. Double-check the WHERE clause.");
+    if (hasWrongJoin) {
+      feedback.suggestions.push("Check your JOIN conditions. Make sure you're connecting tables on the right columns (like pID = pID).");
     }
     if (hasWrongSort) {
-      feedback.suggestions.push("The sorting isn't correct. Make sure to use ORDER BY with the right column and direction.");
+      feedback.suggestions.push("Sorting issue detected. Remember ORDER BY column_name ASC/DESC.");
+    }
+    if (hasWrongGroup) {
+      feedback.suggestions.push("GROUP BY issue. Remember: non-aggregate columns in SELECT must be in GROUP BY.");
+    }
+    if (hasWrongFilter) {
+      feedback.suggestions.push("Filtering problem. Double-check your WHERE conditions and comparison operators.");
     }
     
-    // Add learning objective reminders
+    // Add context-specific hints
+    if (exercise.category === "Advanced Queries") {
+      feedback.suggestions.push("Advanced queries often need subqueries or EXISTS. Break the problem into smaller parts.");
+    }
+    if (exercise.title.includes("Shopping")) {
+      feedback.suggestions.push("Remember the shopping database relationships: customers have shopping lists and make purchases.");
+    }
+    
+    // Add learning objective reminders for struggling students
     if (score < 50) {
-      feedback.suggestions.push(`Review these concepts: ${exercise.learningObjectives.join(', ')}`);
+      feedback.suggestions.push(`Review these key concepts: ${exercise.learningObjectives.join(', ')}`);
+      feedback.suggestions.push("Check the theory section for this exercise - it has examples similar to this problem.");
     }
   }
   
