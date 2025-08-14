@@ -25,6 +25,13 @@
   flex-wrap: wrap;
 }
 
+.headerActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .title {
   font-size: 1.125rem;
   font-weight: 600;
@@ -63,6 +70,35 @@
   filter: drop-shadow(0 1px 2px rgba(29, 78, 216, 0.1));
 }
 
+.solutionBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  border-radius: 16px;
+  color: #92400e;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  flex-shrink: 0;
+}
+
+.solutionBadge:hover {
+  background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+  border-color: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.solutionBadge svg {
+  filter: drop-shadow(0 1px 2px rgba(146, 64, 14, 0.1));
+}
+
 .metadata {
   display: flex;
   gap: 12px;
@@ -84,6 +120,16 @@
   color: var(--tue-red);
   font-weight: 600;
   white-space: nowrap;
+}
+
+.practiceLabel {
+  color: #92400e;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: #fef3c7;
+  border-radius: 12px;
+  border: 1px solid #f59e0b;
 }
 
 .content {
@@ -185,6 +231,139 @@
   border-bottom: none;
 }
 
+/* Solution Section Styles */
+.solutionSection {
+  margin-top: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #0284c7;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.solutionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.solutionHeader h4 {
+  margin: 0;
+  color: #0c4a6e;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copySolutionBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #0284c7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copySolutionBtn:hover {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.solutionCode {
+  background: #1e293b;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #334155;
+  overflow-x: auto;
+}
+
+.solutionCode pre {
+  margin: 0;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.alternativeSolutions {
+  margin-top: 16px;
+}
+
+.alternativeSolutions h5 {
+  margin: 0 0 8px 0;
+  color: #0c4a6e;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.altSolutionCode {
+  background: #1e293b;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #334155;
+  overflow-x: auto;
+}
+
+.altSolutionCode pre {
+  margin: 0;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.solutionTip {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(14, 165, 233, 0.1);
+  border-left: 4px solid #0ea5e9;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #0c4a6e;
+  line-height: 1.5;
+}
+
+/* SQL Syntax Highlighting for Solutions */
+.sqlKeyword {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.sqlString {
+  color: #34d399;
+}
+
+.sqlTable {
+  color: #f87171;
+  font-weight: 500;
+}
+
+/* Animation for solution reveal */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .titleRow {
@@ -193,15 +372,31 @@
     gap: 8px;
   }
   
-  .theoryBadge {
+  .headerActions {
+    justify-content: flex-start;
+  }
+  
+  .theoryBadge,
+  .solutionBadge {
     align-self: flex-start;
   }
   
   .metadata {
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
   
   .schemaGrid {
     grid-template-columns: 1fr;
+  }
+  
+  .solutionHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .copySolutionBtn {
+    align-self: flex-start;
   }
 }
