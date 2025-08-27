@@ -11,7 +11,6 @@ import SchemaReference from './components/Exercise/SchemaReference';
 import Tutorial from './components/Tutorial/Tutorial';
 import LoadingScreen from './components/UI/LoadingScreen';
 import Confetti from './components/UI/Confetti';
-import styles from './App.module.css';
 
 // Main app content (wrapped by provider)
 const AppContent = () => {
@@ -142,10 +141,13 @@ const AppContent = () => {
   
   if (error) {
     return (
-      <div className={styles.errorContainer}>
-        <h2>Database Error</h2>
-        <p>{error}</p>
-        <button onClick={() => window.location.reload()}>
+      <div className="flex flex-col items-center justify-center min-h-screen text-center bg-gray-50">
+        <h2 className="text-2xl font-semibold text-tue-red mb-4">Database Error</h2>
+        <p className="text-gray-800 mb-6">{error}</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="bg-tue-red text-white px-6 py-2.5 rounded font-medium hover:bg-tue-red-dark transition-colors"
+        >
           Reload Page
         </button>
       </div>
@@ -157,18 +159,32 @@ const AppContent = () => {
   }
   
   return (
-    <div className={styles.app}>
+    <div className="min-h-screen flex flex-col bg-gray-50">
       {showConfetti && <Confetti />}
       
       <Header />
       
-      <div className={styles.mainLayout}>
-        <div className={styles.sidebar}>
+      <div className="flex flex-1 max-w-7xl mx-auto w-full px-5 py-5 gap-5 items-start">
+        {/* Sidebar - Hidden on mobile, shown on larger screens */}
+        <div className="hidden lg:flex w-80 flex-col gap-4 flex-shrink-0">
           <SkillTree />
           <SchemaReference />
         </div>
         
-        <div className={styles.mainContent}>
+        {/* Mobile Layout - Sidebar on top */}
+        <div className="lg:hidden w-full flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <SkillTree />
+            <SchemaReference />
+          </div>
+          <ExercisePanel />
+          <SQLEditor onExecute={handleExecute} />
+          <FeedbackPanel />
+          <QueryResults />
+        </div>
+        
+        {/* Desktop Main Content */}
+        <div className="hidden lg:flex flex-1 flex-col gap-4 min-w-0">
           <ExercisePanel />
           <SQLEditor onExecute={handleExecute} />
           <FeedbackPanel />

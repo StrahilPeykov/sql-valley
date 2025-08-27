@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import styles from './Confetti.module.css';
 
 const Confetti = () => {
   const canvasRef = useRef(null);
@@ -69,7 +68,12 @@ const Confetti = () => {
     };
   }, []);
   
-  return <canvas ref={canvasRef} className={styles.canvas} />;
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="fixed inset-0 w-full h-full pointer-events-none z-[9999] animate-fade-in"
+    />
+  );
 };
 
 export default Confetti;

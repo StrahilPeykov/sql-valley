@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft, X, GraduationCap } from 'lucide-react';
-import styles from './Tutorial.module.css';
 
 const Tutorial = ({ onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -66,39 +65,43 @@ const Tutorial = ({ onComplete }) => {
   };
   
   return (
-    <div className={styles.overlay}>
-      <div className={styles.container}>
-        <button className={styles.skipButton} onClick={onComplete}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex items-center justify-center p-5">
+      <div className="w-full max-w-lg bg-white rounded-xl p-8 relative shadow-2xl">
+        <button 
+          className="absolute top-4 right-4 bg-transparent border-none text-gray-600 p-2 cursor-pointer transition-all duration-200 rounded hover:bg-gray-50 hover:text-gray-800"
+          onClick={onComplete}
+        >
           <X size={20} />
-          Skip
         </button>
         
-        <div className={styles.icon}>
+        <div className="flex justify-center mb-6 text-tue-red">
           <GraduationCap size={48} />
         </div>
         
-        <h2 className={styles.title}>{steps[currentStep].title}</h2>
+        <h2 className="text-center text-2xl font-semibold text-gray-800 m-0 mb-6">
+          {steps[currentStep].title}
+        </h2>
         
-        <div className={styles.content}>
+        <div className="text-gray-700 leading-7 mb-8">
           {steps[currentStep].content}
         </div>
         
-        <div className={styles.footer}>
-          <div className={styles.progress}>
+        <div className="flex flex-col gap-6">
+          <div className="flex justify-center gap-2">
             {steps.map((_, index) => (
               <div
                 key={index}
-                className={`${styles.dot} ${
-                  index === currentStep ? styles.active : 
-                  index < currentStep ? styles.completed : ''
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentStep ? 'w-6 bg-tue-red rounded' : 
+                  index < currentStep ? 'bg-gray-400' : 'bg-gray-300'
                 }`}
               />
             ))}
           </div>
           
-          <div className={styles.navigation}>
+          <div className="flex justify-between gap-3">
             <button
-              className={styles.navButton}
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-white text-gray-600 border border-gray-300 rounded-md font-medium cursor-pointer transition-all duration-200 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={prevStep}
               disabled={currentStep === 0}
             >
@@ -107,7 +110,7 @@ const Tutorial = ({ onComplete }) => {
             </button>
             
             <button
-              className={`${styles.navButton} ${styles.primary}`}
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-tue-red text-white border border-tue-red rounded-md font-medium cursor-pointer transition-all duration-200 hover:bg-tue-red-dark hover:border-tue-red-dark"
               onClick={nextStep}
             >
               {currentStep === steps.length - 1 ? 'Start Learning' : 'Next'}

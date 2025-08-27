@@ -5,7 +5,6 @@ import {
   CheckCircle, XCircle
 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
-import styles from './Editor.module.css';
 
 // Simple syntax highlighter for SQL
 const highlightSQL = (code) => {
@@ -44,8 +43,6 @@ const highlightSQL = (code) => {
     return `__STRING_${index}__`;
   });
   
-  // Now do highlighting on the remaining code (no comments or strings)
-  
   // Highlight numbers
   highlighted = highlighted.replace(/\b(\d+)\b/g, '<span style="color: #f97316;">$1</span>');
   
@@ -76,7 +73,7 @@ const highlightSQL = (code) => {
   return highlighted;
 };
 
-// Code Editor Component using overlay technique but with proper implementation
+// Code Editor Component using overlay technique
 const CodeEditor = ({ value, onChange, onKeyDown, placeholder, style, ...props }) => {
   const textareaRef = useRef(null);
   const preRef = useRef(null);
@@ -110,14 +107,14 @@ const CodeEditor = ({ value, onChange, onKeyDown, placeholder, style, ...props }
   return (
     <div 
       ref={containerRef}
-      className={styles.codeEditorContainer}
+      className="relative w-full min-h-[200px] border border-gray-300 rounded bg-white overflow-auto font-mono text-sm leading-relaxed focus-within:border-tue-red focus-within:shadow-sm focus-within:shadow-tue-red/10"
       onClick={handleContainerClick}
       style={style}
     >
       {/* Syntax highlighted background */}
       <pre
         ref={preRef}
-        className={styles.syntaxHighlight}
+        className="absolute top-0 left-0 right-0 bottom-0 m-0 p-3 bg-transparent text-gray-800 font-mono text-sm leading-relaxed whitespace-pre-wrap break-words overflow-hidden pointer-events-none z-10 border-none outline-none resize-none"
         dangerouslySetInnerHTML={{
           __html: highlightSQL(value) + '\n'
         }}
@@ -131,7 +128,8 @@ const CodeEditor = ({ value, onChange, onKeyDown, placeholder, style, ...props }
         onKeyDown={handleKeyDown}
         onScroll={handleScroll}
         placeholder={placeholder}
-        className={styles.codeTextarea}
+        className="absolute top-0 left-0 right-0 bottom-0 w-full h-full m-0 p-3 bg-transparent border-none outline-none resize-none font-mono text-sm leading-relaxed text-transparent caret-gray-800 z-20"
+        style={{ WebkitTextFillColor: 'transparent' }}
         spellCheck={false}
         autoComplete="off"
         autoCorrect="off"
@@ -340,8 +338,8 @@ const SQLEditor = ({ onExecute }) => {
   // Handle clicks outside suggestions to close them
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showSuggestions && !event.target.closest(`.${styles.suggestions}`) && 
-          !event.target.closest(`.${styles.codeEditorContainer}`)) {
+      if (showSuggestions && !event.target.closest('.suggestions') && 
+          !event.target.closest('.code-editor-container')) {
         setShowSuggestions(false);
       }
     };
@@ -468,61 +466,61 @@ const SQLEditor = ({ onExecute }) => {
   };
   
   return (
-    <div className={styles.editor}>
-      <div className={styles.editorHeader}>
-        <div className={styles.editorTitle}>
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-gray-50 border-b border-gray-200 gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <Code size={20} />
-          <h3>SQL Editor</h3>
+          <h3 className="m-0 text-base font-semibold text-gray-800">SQL Editor</h3>
           {practiceMode && (
-            <span className={styles.practiceModeBadge}>
+            <span className="flex items-center gap-1 px-3 py-1 bg-yellow-400 text-yellow-800 rounded-full text-xs font-semibold">
               <Zap size={14} />
               Practice Mode
             </span>
           )}
         </div>
         
-        <div className={styles.editorActions}>
+        <div className="flex gap-2 items-center w-full sm:w-auto">
           <button
             onClick={formatSQL}
-            className={styles.formatButton}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white text-gray-600 border border-gray-300 rounded font-medium cursor-pointer transition-all duration-200 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 whitespace-nowrap flex-1 sm:flex-initial justify-center"
             title="Format SQL"
           >
             <BookOpen size={16} />
-            Format
+            <span className="hidden sm:inline">Format</span>
           </button>
           
           <button
             onClick={resetCurrentExercise}
-            className={styles.resetButton}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white text-gray-600 border border-gray-300 rounded font-medium cursor-pointer transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 whitespace-nowrap flex-1 sm:flex-initial justify-center"
             title="Reset code"
           >
             <RotateCcw size={16} />
-            Reset
+            <span className="hidden sm:inline">Reset</span>
           </button>
           
           <button
             onClick={handleExecute}
             disabled={isExecuting || syntaxErrors.some(e => e.type === 'error')}
-            className={styles.runButton}
+            className="flex items-center gap-1.5 px-3 py-2 bg-tue-red text-white border border-tue-red rounded font-medium cursor-pointer transition-all duration-200 hover:bg-tue-red-dark hover:border-tue-red-dark disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap flex-1 sm:flex-initial justify-center"
             title="Run query (Ctrl+Enter)"
           >
             {isExecuting ? (
               <>
-                <Loader size={16} className={styles.spinner} />
-                Running...
+                <Loader size={16} className="animate-spin" />
+                <span className="hidden sm:inline">Running...</span>
               </>
             ) : (
               <>
                 <Play size={16} />
-                Run Query
+                <span className="hidden sm:inline">Run Query</span>
               </>
             )}
           </button>
         </div>
       </div>
       
-      <div className={styles.editorBody}>
-        <div className={styles.editorWrapper} ref={textareaRef}>
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="relative flex-1 min-h-[200px]" ref={textareaRef}>
           <CodeEditor
             value={userCode}
             onChange={handleChange}
@@ -538,12 +536,12 @@ const SQLEditor = ({ onExecute }) => {
           
           {/* Autocomplete suggestions */}
           {showSuggestions && (
-            <div className={styles.suggestions}>
+            <div className="suggestions absolute top-full left-3 right-3 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-48 overflow-y-auto backdrop-blur-sm animate-slide-down">
               {suggestions.map((suggestion, index) => (
                 <div
                   key={suggestion}
-                  className={`${styles.suggestion} ${
-                    index === selectedSuggestion ? styles.selected : ''
+                  className={`px-3 py-2 cursor-pointer font-mono text-sm transition-colors border-b border-gray-100 text-gray-700 flex items-center select-none last:border-b-0 ${
+                    index === selectedSuggestion ? 'bg-blue-600 text-white' : 'hover:bg-blue-50 hover:text-blue-700'
                   }`}
                   onMouseDown={(e) => {
                     e.preventDefault(); // Prevent losing focus
@@ -559,36 +557,36 @@ const SQLEditor = ({ onExecute }) => {
         </div>
       </div>
       
-      <div className={styles.editorFooter}>
-        <div className={styles.footerLeft}>
+      <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-gray-600 gap-2 sm:gap-3">
+        <div className="flex items-center gap-2">
           {syntaxErrors.length > 0 ? (
-            <span className={styles.syntaxError}>
+            <span className="flex items-center gap-1 text-red-500">
               <XCircle size={14} />
               {syntaxErrors[0].text}
             </span>
           ) : (
-            <span className={styles.syntaxOk}>
+            <span className="flex items-center gap-1 text-green-600">
               <CheckCircle size={14} />
               Syntax OK
             </span>
           )}
         </div>
         
-        <div className={styles.footerCenter}>
-          <span className={styles.hint}>
-            <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to run • 
-            <kbd>Tab</kbd> for suggestions
+        <div className="hidden sm:flex items-center gap-2 flex-1 justify-center">
+          <span className="flex items-center gap-1">
+            <kbd className="bg-white border border-gray-300 rounded px-1.5 py-0.5 font-mono text-xs shadow-sm">Ctrl</kbd>+<kbd className="bg-white border border-gray-300 rounded px-1.5 py-0.5 font-mono text-xs shadow-sm">Enter</kbd> to run • 
+            <kbd className="bg-white border border-gray-300 rounded px-1.5 py-0.5 font-mono text-xs shadow-sm">Tab</kbd> for suggestions
           </span>
         </div>
         
-        <div className={styles.footerRight}>
+        <div className="flex items-center gap-3 self-end sm:self-auto">
           {executionTime && (
-            <span className={styles.executionTime}>
+            <span className="flex items-center gap-1 text-gray-600">
               <Clock size={14} />
               {executionTime}ms
             </span>
           )}
-          <span className={styles.info}>
+          <span className="text-gray-600">
             Line {userCode.split('\n').length} • {userCode.length} chars
           </span>
         </div>
