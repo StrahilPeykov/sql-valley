@@ -7,11 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        'tue': {
-          red: '#C72125',
-          'red-dark': '#A01A1D',
-          'red-light': '#E63946',
-        }
+        'tue-red': '#C72125',
+        'tue-red-dark': '#A01A1D',
+        'tue-red-light': '#E63946',
       },
       fontFamily: {
         'sans': ['Inter', 'system-ui', 'sans-serif'],
@@ -57,9 +55,6 @@ export default {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' }
         }
-      },
-      backdropBlur: {
-        'xs': '2px',
       }
     },
   },
